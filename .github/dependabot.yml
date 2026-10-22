@@ -1,0 +1,17 @@
+# GitHub does not run workflows from forks with write permissions, and
+# release tags must be pushed from a maintainer machine.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: "/"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    groups:
+      pi:
+        patterns:
+          - "@earendil-works/*"
+      tooling:
+        patterns:
+          - "typescript"
+          - "@types/*"

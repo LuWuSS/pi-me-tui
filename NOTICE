@@ -1,0 +1,18 @@
+pi-me-tui
+Copyright (c) 2026 pi-me-tui contributors
+
+This package is a clean-room Pi extension implementation. Its statusline data
+model and widget behavior are inspired by ccstatusline-zh (MIT):
+
+  https://github.com/huangguang1999/ccstatusline-zh
+  Copyright (c) 2025 Matthew Breedlove
+  Copyright (c) 2026 huangguang1999
+
+Its Pi extension lifecycle, footer integration, and overlay TUI patterns are
+inspired by pi-open-tui (MIT):
+
+  https://github.com/OldSuns/pi-open-tui
+  Copyright (c) 2025 OldSuns
+
+Both upstream projects are distributed under the MIT License. No source files
+are copied verbatim; only public API patterns and formatting ideas are reused.

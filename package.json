@@ -1,0 +1,70 @@
+{
+  "name": "pi-me-tui",
+  "version": "0.1.0",
+  "description": "Configurable multi-line statusline for the Pi coding agent: ccstatusline-style widgets, Powerline themes, and an interactive /me-tui editor.",
+  "type": "module",
+  "keywords": [
+    "pi-package",
+    "pi",
+    "pi-coding-agent",
+    "pi-extension",
+    "statusline",
+    "tui",
+    "powerline"
+  ],
+  "author": "dcy",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LuWuSS/pi-me-tui.git"
+  },
+  "homepage": "https://github.com/LuWuSS/pi-me-tui#readme",
+  "bugs": {
+    "url": "https://github.com/LuWuSS/pi-me-tui/issues"
+  },
+  "files": [
+    "extensions/",
+    "README.md",
+    "README.zh-CN.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "scripts": {
+    "test": "node --test tests/config.test.ts tests/git.test.ts tests/usage.test.ts tests/render.test.ts tests/widgets.test.ts tests/settings.test.ts",
+    "typecheck": "tsc --noEmit",
+    "check": "npm run typecheck && npm test",
+    "prepublishOnly": "npm run check"
+  },
+  "pi": {
+    "extensions": [
+      "./extensions/me-tui/index.ts"
+    ]
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": ">=1.0.0",
+    "@earendil-works/pi-ai": ">=1.0.0",
+    "@earendil-works/pi-tui": ">=1.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
+    },
+    "@earendil-works/pi-ai": {
+      "optional": true
+    },
+    "@earendil-works/pi-tui": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "^1.0.0",
+    "@earendil-works/pi-ai": "^1.0.0",
+    "@earendil-works/pi-tui": "^1.0.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  }
+}
