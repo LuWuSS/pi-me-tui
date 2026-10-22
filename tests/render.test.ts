@@ -14,7 +14,7 @@ test("default config renders three lines with core, token, and session data", ()
 	assert.equal(lines.length, 3);
 	assert.match(lines[0], /供应商: .*Anthropic/);
 	assert.match(lines[0], /模型: .*Claude Sonnet/);
-	assert.match(lines[0], /思考: .*中/);
+	assert.match(lines[0], /思考: .*medium/);
 	assert.match(lines[0], /分支: .*main/);
 	assert.match(lines[0], /变更: \(\+42,-7\)/);
 	assert.match(lines[0], /1\.3k/);

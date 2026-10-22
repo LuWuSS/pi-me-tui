@@ -54,7 +54,7 @@ export const coreWidgets: WidgetDefinition[] = [
 			if (!rc.ctx.model?.reasoning) return null;
 			const level = currentThinking(rc);
 			if (level === "off" && metadataBoolean(item, "hideOff", false)) return null;
-			return iconText(rc.icons.thinking, formatThinkingLabel(level, rc.language));
+			return iconText(rc.icons.thinking, formatThinkingLabel(level));
 		},
 	},
 ];

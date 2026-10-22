@@ -53,7 +53,7 @@ test("createItem applies defaults and unique ids", () => {
 test("core widgets render provider, model, and thinking", () => {
 	assert.equal(renderItem({ id: "p", type: "provider" }), `${icons.provider} Anthropic`);
 	assert.equal(renderItem({ id: "m", type: "model" }), `${icons.model} Claude Sonnet`);
-	assert.equal(renderItem({ id: "t", type: "thinking" }), `${icons.thinking} 中`);
+	assert.equal(renderItem({ id: "t", type: "thinking" }), `${icons.thinking} medium`);
 	assert.equal(
 		renderItem({ id: "t", type: "thinking" }, { language: "en", ctx: { ...renderContext().ctx, thinkingLevel: "xhigh" } as never }),
 		`${icons.thinking} xhigh`,

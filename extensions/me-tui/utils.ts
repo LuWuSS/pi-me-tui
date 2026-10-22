@@ -213,20 +213,19 @@ export function formatProviderLabel(provider: string | undefined): string {
 		.join(" ");
 }
 
-export function formatThinkingLabel(level: string | undefined, language: "zh" | "en"): string {
+export function formatThinkingLabel(level: string | undefined): string {
 	const normalized = (level ?? "off").toLowerCase();
-	const labels: Record<string, { zh: string; en: string }> = {
-		off: { zh: "关闭", en: "off" },
-		none: { zh: "关闭", en: "none" },
-		minimal: { zh: "极低", en: "minimal" },
-		low: { zh: "低", en: "low" },
-		medium: { zh: "中", en: "medium" },
-		high: { zh: "高", en: "high" },
-		xhigh: { zh: "极高", en: "xhigh" },
-		max: { zh: "最高", en: "max" },
+	const labels: Record<string, string> = {
+		off: "off",
+		none: "none",
+		minimal: "minimal",
+		low: "low",
+		medium: "medium",
+		high: "high",
+		xhigh: "xhigh",
+		max: "max",
 	};
-	const entry = labels[normalized] ?? { zh: level ?? "off", en: level ?? "off" };
-	return language === "zh" ? entry.zh : entry.en;
+	return labels[normalized] ?? (level ?? "off");
 }
 
 export function humanizeType(type: string): string {
