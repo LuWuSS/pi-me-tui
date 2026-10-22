@@ -20,16 +20,10 @@
 
 ## 安装
 
-从 GitHub 安装（推荐）：
+从 GitHub 安装：
 
 ```bash
 pi install git:github.com/LuWuSS/pi-me-tui
-```
-
-从 npm 安装（如果已发布）：
-
-```bash
-pi install npm:pi-me-tui
 ```
 
 从本地目录安装：

@@ -103,7 +103,7 @@ docs: document the GitHub install path
 
 1. Bump `version` in `package.json` and add a `CHANGELOG.md` entry.
 2. Commit, then tag: `git tag v0.1.0 && git push --tags`.
-3. The `Publish` workflow publishes to npm when `NPM_TOKEN` is configured; otherwise run `npm publish --access public`.
+3. The `Release` workflow runs the checks and creates the GitHub release from the pushed tag.
 
 ## License
 

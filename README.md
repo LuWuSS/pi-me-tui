@@ -20,16 +20,10 @@ A configurable multi-line statusline for the Pi coding agent. It brings the data
 
 ## Install
 
-From GitHub (recommended):
+From GitHub:
 
 ```bash
 pi install git:github.com/LuWuSS/pi-me-tui
-```
-
-From npm, if published there:
-
-```bash
-pi install npm:pi-me-tui
 ```
 
 From a local checkout:
