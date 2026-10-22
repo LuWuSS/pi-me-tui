@@ -18,12 +18,23 @@
 - 缓存命中率、输入/输出/总速度、上下文进度条、Git ahead/behind、工作树信息
 - `/me-tui` 打开后重新安装本扩展的 footer，避免被其他 footer 扩展覆盖
 
+## 环境要求
+
+- Pi 1.0 或更高版本
+- Node.js 22.19 或更高版本
+
 ## 安装
 
-从 GitHub 安装：
+从 GitHub 安装到个人 Pi 设置：
 
 ```bash
 pi install git:github.com/LuWuSS/pi-me-tui
+```
+
+安装到当前项目时加 `--local`（`-l`）。项目级包需要授予项目信任后才会加载：
+
+```bash
+pi install --local git:github.com/LuWuSS/pi-me-tui
 ```
 
 从本地目录安装：
@@ -33,13 +44,53 @@ git clone https://github.com/LuWuSS/pi-me-tui.git
 pi install ./pi-me-tui
 ```
 
-临时试用（不写入设置）：
+临时试用本地目录（不写入设置）：
 
 ```bash
 pi -e ./pi-me-tui
 ```
 
-安装后重启 Pi，状态栏会自动出现。输入 `/me-tui` 打开配置界面，升级用 `pi update`。
+确认包已配置：
+
+```bash
+pi list
+```
+
+安装后重启 Pi。扩展会安装 footer，在终端底部显示状态栏。
+
+## 使用
+
+状态栏自动显示。在 Pi 中输入 `/me-tui` 打开配置界面：
+
+- **编辑状态栏**：管理行和组件，支持添加、复制、替换、删除、移动、搜索、编辑文字前缀和设置组件选项
+- **Powerline**、**全局样式**、**终端与刷新**：配置分隔符、主题、颜色、图标、刷新间隔和缓存时间
+- **导出配置** / **导入配置**：以 JSON 导入导出；导入时展示差异，新增 Shell 命令需要确认
+- **恢复默认**：回到下面的 3 行默认布局
+
+选项高亮即预览，`Enter` 确认，`Esc` 返回。完整按键说明见[配置界面](#配置界面)。
+
+## 更新
+
+```bash
+pi update --extensions                     # 更新所有已安装的包
+pi update git:github.com/LuWuSS/pi-me-tui  # 只更新本插件
+```
+
+不带目标的 `pi update` 更新 Pi 自身。
+
+## 卸载
+
+```bash
+pi remove git:github.com/LuWuSS/pi-me-tui
+```
+
+`pi uninstall` 是 `pi remove` 的别名。如果安装到了项目设置，加 `--local`（`-l`）。本地目录安装的，使用安装时相同的路径移除：
+
+```bash
+pi remove ./pi-me-tui
+```
+
+卸载后重启 Pi。扩展的配置仍保留在 `~/.pi/agent/me-tui.json`；如需一并删除，手动删除该文件。
 
 ## 默认布局
 
@@ -102,7 +153,7 @@ pi -e ./pi-me-tui
 - 分支支持 OSC8 可点击链接（根据 origin URL 生成，GitLab 使用 `/-/tree/` 路径）
 - 超前/滞后来自 `git status --porcelain=v1 --branch` 的 `[ahead N, behind M]`
 - 工作树信息来自 `git worktree list --porcelain`
-- 未安装 `gh`/`glab`，因此 PR 与 CI 组件暂未提供（按需求延后）
+- 不包含 PR 与 CI 组件，扩展不调用 `gh` / `glab`
 
 ### Token（9）
 
@@ -187,10 +238,9 @@ pi -e .            # 在 Pi 中加载本地代码
 
 ## 说明
 
-- Vim 模式组件按需求暂缓，本版本不安装自定义编辑器
-- Git PR / CI 组件按需求暂缓；当前环境没有 `gh`/`glab`
+- 本版本不安装自定义编辑器，配置通过 `/me-tui` 完成
+- 不包含 Git PR / CI 组件，扩展不调用 `gh` / `glab`
 - 所有 Git、Token、速度数据均为本地计算，不发送网络请求
-- 需要 Pi 1.0+ 与 Node 22.19+
 
 ## 贡献
 

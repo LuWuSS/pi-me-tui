@@ -18,12 +18,23 @@ A configurable multi-line statusline for the Pi coding agent. It brings the data
 - Cache hit rate, input/output/total speed in compact t/s units (e.g. 8.44kt/s), context progress bars, Git ahead/behind, and worktree details
 - Opening `/me-tui` reinstalls this extension's footer so it wins over other footer extensions
 
+## Requirements
+
+- Pi 1.0 or newer
+- Node.js 22.19 or newer
+
 ## Install
 
-From GitHub:
+Install from GitHub into your personal Pi settings:
 
 ```bash
 pi install git:github.com/LuWuSS/pi-me-tui
+```
+
+To install into the current project instead, add `--local` (`-l`). Project packages load after Pi grants project trust:
+
+```bash
+pi install --local git:github.com/LuWuSS/pi-me-tui
 ```
 
 From a local checkout:
@@ -33,13 +44,53 @@ git clone https://github.com/LuWuSS/pi-me-tui.git
 pi install ./pi-me-tui
 ```
 
-Try it once without saving anything to your Pi settings:
+To try a local checkout for one Pi run without writing it to settings:
 
 ```bash
 pi -e ./pi-me-tui
 ```
 
-Restart Pi after installation. Run `/me-tui` to configure the statusline. Upgrades come from `pi update`.
+Confirm that the package is configured:
+
+```bash
+pi list
+```
+
+Restart Pi after installation. The extension installs a footer and shows the statusline at the bottom of the terminal.
+
+## Use
+
+The statusline renders automatically. Run `/me-tui` inside Pi to open the editor:
+
+- **Edit statusline** manages lines and widgets: add, duplicate, replace, delete, move, search, edit label prefixes, and set per-widget options
+- **Powerline**, **Global style**, and **Terminal/refresh** configure separators, themes, colors, icons, refresh interval, and cache TTLs
+- **Export config** and **Import config** move settings as JSON; import shows a diff and asks for confirmation before adding new shell commands
+- **Restore defaults** brings back the three-line layout described below
+
+Changes preview while you navigate; `Enter` confirms, and `Esc` goes back. See [Editor](#editor) for the full key map.
+
+## Update
+
+```bash
+pi update --extensions                     # update all installed packages
+pi update git:github.com/LuWuSS/pi-me-tui  # update only this package
+```
+
+`pi update` without a target updates Pi itself.
+
+## Uninstall
+
+```bash
+pi remove git:github.com/LuWuSS/pi-me-tui
+```
+
+`pi uninstall` is an alias for `pi remove`. Add `--local` (`-l`) if the package was installed into project settings. For a local install, pass the same path you gave to `pi install`:
+
+```bash
+pi remove ./pi-me-tui
+```
+
+Restart Pi after removal. The extension's settings remain in `~/.pi/agent/me-tui.json`; delete that file to remove them too.
 
 ## Default layout
 
@@ -100,7 +151,7 @@ Branch, changes, insertions, deletions, status, staged, unstaged, untracked, con
 - Branch supports OSC8 clickable links derived from the origin URL (GitLab uses the `/-/tree/` path)
 - Ahead/behind comes from the `[ahead N, behind M]` suffix of `git status --porcelain=v1 --branch`
 - Worktree details come from `git worktree list --porcelain`
-- PR and CI widgets are deferred because `gh`/`glab` are not available in the target environment
+- PR and CI widgets are not included; the extension does not call `gh` or `glab`
 
 ### Tokens (9)
 
@@ -185,10 +236,9 @@ Tests cover config normalization, Git parsing, token/speed math, rendering, the 
 
 ## Notes
 
-- Vim mode is deferred; this version does not install a custom editor
-- Git PR / CI widgets are deferred; `gh`/`glab` are not installed
+- This version does not install a custom editor; configuration is handled by `/me-tui`
+- Git PR and CI widgets are not included; the extension does not call `gh` or `glab`
 - All Git, token, and speed data is computed locally; no network requests are made
-- Requires Pi 1.0+ and Node 22.19+
 
 ## Contributing
 
