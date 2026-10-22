@@ -313,16 +313,17 @@ export default function (pi: ExtensionAPI): void {
 		ttftByTimestamp.clear();
 		skillNames = new Set();
 		refreshSkillNames(pi);
+		const notify = (message: string) => {
+			try {
+				ctx.ui.notify(message, "warning");
+			} catch {
+				// ignore
+			}
+		};
 		try {
-			config = ensureConfigExists();
+			config = ensureConfigExists(notify);
 		} catch {
-			config = loadConfig((message) => {
-				try {
-					ctx.ui.notify(message);
-				} catch {
-					// ignore
-				}
-			});
+			config = loadConfig(notify);
 		}
 		state = createInitialState(Date.now());
 		refreshTerminalWidth(true);

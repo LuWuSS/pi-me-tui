@@ -84,7 +84,7 @@ pi update git:github.com/LuWuSS/pi-me-tui  # update only this package
 pi remove git:github.com/LuWuSS/pi-me-tui
 ```
 
-`pi uninstall` is an alias for `pi remove`. Add `--local` (`-l`) if the package was installed into project settings. For a local install, pass the same path you gave to `pi install`:
+`pi uninstall` is an alias for `pi remove`. Add `--local` (`-l`) if the package was installed into project settings; if Pi reports that the project is not trusted, also add `--approve` (`-a`). For a local install, pass the same path you gave to `pi install`:
 
 ```bash
 pi remove ./pi-me-tui

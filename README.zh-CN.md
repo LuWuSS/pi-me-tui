@@ -84,7 +84,7 @@ pi update git:github.com/LuWuSS/pi-me-tui  # 只更新本插件
 pi remove git:github.com/LuWuSS/pi-me-tui
 ```
 
-`pi uninstall` 是 `pi remove` 的别名。如果安装到了项目设置，加 `--local`（`-l`）。本地目录安装的，使用安装时相同的路径移除：
+`pi uninstall` 是 `pi remove` 的别名。如果安装到了项目设置，加 `--local`（`-l`）；若 Pi 提示项目未受信任，再加 `--approve`（`-a`）。本地目录安装的，使用安装时相同的路径移除：
 
 ```bash
 pi remove ./pi-me-tui

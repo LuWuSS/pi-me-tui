@@ -125,8 +125,8 @@ export function getConfigPath(): string {
 	return join(getAgentDir(), "me-tui.json");
 }
 
-export function ensureConfigExists(): MeTuiConfig {
-	if (existsSync(getConfigPath())) return loadConfig();
+export function ensureConfigExists(onError?: (message: string) => void): MeTuiConfig {
+	if (existsSync(getConfigPath())) return loadConfig(onError);
 	const config = defaultConfig();
 	saveConfig(config);
 	return config;

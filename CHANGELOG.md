@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Fixed
+
+- Configuration parse failures now show a warning instead of silently falling back to defaults
+- Documented `--approve` (`-a`) for removing a project-level package when the project is not trusted
+
 ## [0.1.0]
 
 ### Added
