@@ -21,7 +21,7 @@ test("defaultConfig has three Chinese-friendly lines", () => {
 	assert.equal(config.lines.length, 3);
 	assert.equal(
 		config.lines[0].map((item) => item.type).join(","),
-		"provider,separator,model,separator,thinking,separator,git-branch,separator,git-changes,flex,tokens-input,tokens-output,tokens-total,separator,tokens-cached,tokens-cache-hit-rate,separator,speed-input,speed-output,speed-total",
+		"provider,separator,model,separator,thinking,separator,git-branch,git-changes,flex,tokens-input,tokens-output,tokens-total,separator,tokens-cached,tokens-cache-hit-rate,separator,speed-input,speed-output,speed-total",
 	);
 	assert.equal(
 		config.lines[1].map((item) => item.type).join(","),
@@ -30,10 +30,13 @@ test("defaultConfig has three Chinese-friendly lines", () => {
 	assert.equal(config.lines[0][0].color, "accent");
 	assert.equal(config.lines[0][1].type, "separator");
 	assert.equal(config.lines[0][2].color, "mdLink");
-	assert.equal(config.lines[0][10].rawValue, true);
+	assert.equal(config.lines[0][7].rawValue, true);
+	assert.equal(config.lines[0][9].rawValue, false);
+	assert.equal(config.lines[0][9].labelOverride, "本轮  ：");
+	assert.equal(config.lines[1][5].labelOverride, "总计  ：");
 	assert.equal(
 		config.lines[2].map((item) => item.type).join(","),
-		"session-clock,separator,round-duration,separator,total-round-duration,separator,conversation-rounds,separator,model-calls,separator,session-name,separator,memory,separator,skills,separator,cwd",
+		"session-clock,separator,round-duration,separator,total-round-duration,separator,conversation-rounds,separator,model-calls,flex,session-name,flex,memory,separator,skills,separator,cwd",
 	);
 	assert.equal(config.lines[1][0].type, "context-length");
 	assert.equal(config.lines[2].at(-1)?.type, "cwd");

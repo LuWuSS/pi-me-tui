@@ -271,7 +271,7 @@ test("glow option toggles the highlighted widget", () => {
 test("line alignment row previews and applies an alignment", () => {
 	const { ui, lastConfig, previewed } = createSettings();
 	ui.handleInput("\r");
-	for (let index = 0; index < 21; index += 1) ui.handleInput("\u001b[B");
+	for (let index = 0; index < 20; index += 1) ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
 	for (let index = 0; index < 3; index += 1) ui.handleInput("\u001b[B");
 	ui.render(100);

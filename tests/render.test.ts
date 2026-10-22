@@ -16,8 +16,10 @@ test("default config renders three lines with core, token, and session data", ()
 	assert.match(lines[0], /模型: .*Claude Sonnet/);
 	assert.match(lines[0], /思考: .*medium/);
 	assert.match(lines[0], /分支: .*main/);
-	assert.match(lines[0], /变更: \(\+42,-7\)/);
+	assert.match(lines[0], /\(\+42,-7\)/);
+	assert.equal(lines[0].includes("变更:"), false);
 	assert.match(lines[0], /1\.3k/);
+	assert.match(lines[0], /本轮  ：/);
 	assert.equal(lines[0].includes("本次输入:"), false);
 	assert.match(lines[0], /17\.6%/);
 	assert.match(lines[1], /\[█+░+\] 12\.5%/);
