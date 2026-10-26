@@ -10,11 +10,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 - Thinking effort values use the English level names (`off`, `minimal`, `low`, `medium`, `high`, `xhigh`, `max`) in both languages
 - The default layout renders Git change counts without a label, labels the two current-input token widgets with `本轮` and the session-input token widget with `总计`, and centers the session name between flex spacers
+- Global bold now only sets the bold attribute instead of repainting the widget color, and glow lifts the color by 22% without implying bold, so the two toggles are independent and stack
 
 ### Fixed
 
 - Configuration parse failures now show a warning instead of silently falling back to defaults
 - Documented `--approve` (`-a`) for removing a project-level package when the project is not trusted
+- Glow no longer flattens a widget value's own ANSI colors or drops OSC 8 hyperlinks
 
 ## [0.1.0]
 

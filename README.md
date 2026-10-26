@@ -115,7 +115,7 @@ Main menu:
 - The overlay paints the full terminal height with `customMessageBg`, so the chat behind it stays hidden
 - Highlighted options preview live (colors, icons, language, theme, labels, width); Enter commits, Esc goes back without saving
 - Settings fill the terminal and preview at statusline width; global bold/dim/glow/padding and Powerline separators preview immediately
-- Bold brightens the whole item including its label; glow brightens it further (70%). Line alignment is configurable per line (default split, left, center, right)
+- Bold adds the bold attribute only and leaves colors untouched; glow lifts the widget color by 22% without implying bold, so both can be combined. Line alignment is configurable per line (default split, left, center, right)
 - Terminal/refresh: refresh interval, Git cache, custom-command cache, terminal-width cache
 - Export config to JSON
 - Import config with a diff preview; new shell commands are displayed and cancellation is the default

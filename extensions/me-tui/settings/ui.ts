@@ -888,13 +888,13 @@ export class MeTuiSettings {
 			}),
 			this.configFieldRow("overrides.bold", this.t("全局粗体", "Global bold"), "boolean", () => this.config.overrides.bold === true, (value) => {
 				this.config.overrides.bold = value ? true : undefined;
-			}),
+			}, undefined, undefined, undefined, undefined, this.t("只加字重，不改颜色", "Weight only, colors untouched")),
 			this.configFieldRow("overrides.dim", this.t("全局暗色", "Global dim"), "boolean", () => this.config.overrides.dim === true, (value) => {
 				this.config.overrides.dim = value ? true : undefined;
 			}),
 			this.configFieldRow("overrides.glow", this.t("全局发光", "Global glow"), "boolean", () => this.config.overrides.glow === true, (value) => {
 				this.config.overrides.glow = value ? true : undefined;
-			}),
+			}, undefined, undefined, undefined, undefined, this.t("柔和高亮，可与粗体叠加", "Soft lift, stacks with bold")),
 			this.configFieldRow("padding", this.t("默认内边距", "Default padding"), "enum", () => this.config.defaultPaddingSide, (value) => {
 				this.config.defaultPaddingSide = String(value) as PaddingSide;
 			}, [

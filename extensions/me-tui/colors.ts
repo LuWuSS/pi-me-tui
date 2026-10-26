@@ -183,23 +183,38 @@ export function brightenRgb(rgb: Rgb, amount = 0.45): Rgb {
 	};
 }
 
+/** Matches a single foreground sequence anywhere in an escape string. */
+const FOREGROUND_SEQUENCE = /\x1b\[(?:38;2;\d+;\d+;\d+|38;5;\d+|3[0-7]|9[0-7])m/;
+
 export function brightenAnsi(ansi: string, amount: number, level: "ansi16" | "ansi256" | "truecolor"): string {
 	if (!ansi) return ansi;
-	const trueColor = /^\x1b\[38;2;(\d+);(\d+);(\d+)m$/.exec(ansi);
+	const match = FOREGROUND_SEQUENCE.exec(ansi);
+	if (!match) return ansi;
+	// Theme tokens may come back as a color plus extra attributes (dim tokens append SGR 2);
+	// only the color is lifted, the rest of the sequence is preserved.
+	return (
+		ansi.slice(0, match.index) +
+		brightenSequence(match[0], amount, level) +
+		ansi.slice(match.index + match[0].length)
+	);
+}
+
+function brightenSequence(sequence: string, amount: number, level: "ansi16" | "ansi256" | "truecolor"): string {
+	const trueColor = /^\x1b\[38;2;(\d+);(\d+);(\d+)m$/.exec(sequence);
 	if (trueColor) {
 		return rgbForeground(
 			brightenRgb({ r: Number(trueColor[1]), g: Number(trueColor[2]), b: Number(trueColor[3]) }, amount),
 			level,
 		);
 	}
-	const palette = /^\x1b\[38;5;(\d+)m$/.exec(ansi);
+	const palette = /^\x1b\[38;5;(\d+)m$/.exec(sequence);
 	if (palette) return rgbForeground(brightenRgb(ansi256ToRgb(Number(palette[1])), amount), level);
-	const basic = /^\x1b\[(3[0-7]|9[0-7])m$/.exec(ansi);
+	const basic = /^\x1b\[(3[0-7]|9[0-7])m$/.exec(sequence);
 	if (basic) {
 		const code = Number(basic[1]);
-		return code >= 90 ? ansi : "\x1b[" + (code + 60) + "m";
+		return code >= 90 ? sequence : "\x1b[" + (code + 60) + "m";
 	}
-	return ansi;
+	return sequence;
 }
 
 export function brightenAnsiText(

@@ -5,7 +5,7 @@ import { renderAllLines, renderLine } from "../extensions/me-tui/render.ts";
 import type { MeTuiConfig, WidgetItem } from "../extensions/me-tui/types.ts";
 import { visibleWidth } from "@earendil-works/pi-tui";
 import { stripAnsi } from "../extensions/me-tui/utils.ts";
-import { rgbBackground, rgbForeground , brightenAnsiText } from "../extensions/me-tui/colors.ts";
+import { rgbBackground, rgbForeground , brightenAnsi, brightenAnsiText } from "../extensions/me-tui/colors.ts";
 import { bucket, fakeTheme, renderContext } from "./helpers.ts";
 
 test("default config renders three lines with core, token, and session data", () => {
@@ -151,15 +151,36 @@ test("bold restyles the label and an ANSI-colored value", () => {
 	assert.ok(line.split("\x1b[1m").length - 1 >= 2, "the linked value should also be bold");
 });
 
-test("glow brightens the color for both the label and the value", () => {
+test("glow lifts the color softly for both the label and the value", () => {
 	const config = defaultConfig();
 	config.lines = [[{ id: "provider", type: "provider", color: "#3366ff", glow: true }]];
 	const line = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 100)[0];
-	const bright = "\x1b[38;2;194;209;255m";
-	assert.ok(line.includes(bright), JSON.stringify(line));
+	const glow = "\x1b[38;2;96;136;255m";
+	assert.ok(line.includes(glow), JSON.stringify(line));
 	assert.equal(line.includes("\x1b[38;2;51;102;255m"), false);
-	assert.ok(line.split(bright).length - 1 >= 2, "the label and value should both glow");
-	assert.ok(line.includes("\x1b[1m"));
+	assert.ok(line.split(glow).length - 1 >= 2, "the label and value should both glow");
+	assert.equal(line.includes("\x1b[1m"), false, "glow must not imply bold");
+});
+
+test("glow keeps the value's own ANSI styling", () => {
+	const config = defaultConfig();
+	config.lines = [[{ id: "git-branch", type: "git-branch", glow: true }]];
+	const line = renderAllLines(config, renderContext({ config }), 100)[0];
+	assert.ok(line.includes("\x1b]8;;https://github.com/acme/pi-me-tui/tree/main"), JSON.stringify(line));
+});
+
+test("bold stays visible when glow is already on", () => {
+	const config = defaultConfig();
+	config.lines = [[{ id: "provider", type: "provider", color: "#3366ff" }]];
+	config.overrides.glow = true;
+	const glowOnly = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 100)[0];
+	config.overrides.bold = true;
+	const both = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 100)[0];
+	assert.equal(glowOnly.includes("\x1b[1m"), false, "glow alone is not bold");
+	assert.ok(both.includes("\x1b[1m"), "bold still applies on top of glow");
+	assert.ok(both.split("\x1b[1m").length - 1 >= 2, "label and value both gain the bold attribute");
+	assert.equal(both.includes("\x1b[38;2;96;136;255m"), true, "bold leaves the glow color alone");
+	assert.equal(stripAnsi(both), stripAnsi(glowOnly), "bold must not change the rendered text");
 });
 
 test("line alignment applies left, center, and right per line", () => {
@@ -182,13 +203,14 @@ test("ansi16 rgb colors map to real foreground and background codes", () => {
 	assert.equal(rgbBackground({ r: 255, g: 0, b: 0 }, "ansi16"), "\x1b[101m");
 });
 
-test("bold emphasizes the foreground color on the label and value", () => {
+test("bold keeps the configured color and only adds the bold attribute", () => {
 	const config = defaultConfig();
 	config.lines = [[{ id: "provider", type: "provider", color: "#3366ff", bold: true }]];
 	const line = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 100)[0];
-	const emphasized = "\x1b[38;2;122;156;255m";
+	const original = "\x1b[38;2;51;102;255m";
 	assert.ok(line.includes("\x1b[1m"), JSON.stringify(line));
-	assert.ok(line.split(emphasized).length - 1 >= 2, "label and value should share the emphasized color");
+	assert.ok(line.split(original).length - 1 >= 2, "label and value keep the configured color");
+	assert.equal(line.includes("\x1b[38;2;122;156;255m"), false, "bold must not repaint the color");
 });
 
 test("glow brightens theme-token colors too", () => {
@@ -199,13 +221,18 @@ test("glow brightens theme-token colors too", () => {
 	const config = defaultConfig();
 	config.lines = [[{ id: "provider", type: "provider", glow: true }]];
 	const line = renderAllLines(config, renderContext({ config, theme, colorLevel: "truecolor" }), 100)[0];
-	const glow = "\x1b[38;2;215;227;253m";
+	const glow = "\x1b[38;2;151;182;249m";
 	assert.ok(line.split(glow).length - 1 >= 2, JSON.stringify(line));
 });
 
 
 test("brightenAnsiText brightens foreground sequences while keeping text", () => {
 	assert.equal(brightenAnsiText("\x1b[31mred\x1b[0m", 0.35, "truecolor"), "\x1b[91mred\x1b[0m");
+});
+
+test("brightenAnsi lifts theme colors that carry extra attributes", () => {
+	assert.equal(brightenAnsi("\x1b[38;2;122;162;247m\x1b[2m", 0.22, "truecolor"), "\x1b[38;2;151;182;249m\x1b[2m");
+	assert.equal(brightenAnsi("\x1b[36m\x1b[2m", 0.22, "truecolor"), "\x1b[96m\x1b[2m");
 });
 
 

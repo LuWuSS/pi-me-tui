@@ -26,6 +26,12 @@ interface Segment {
 	flex?: boolean;
 }
 
+/**
+ * How far glow lifts a foreground toward white. Kept small so the hue stays readable; the extra
+ * weight comes from bold, which is a separate SGR attribute rather than a color shift.
+ */
+const GLOW_BRIGHTEN = 0.22;
+
 function resolveLabel(item: WidgetItem, rc: WidgetRenderContext): string {
 	if (item.rawValue) return "";
 	const definition = getWidget(item.type);
@@ -37,7 +43,13 @@ function resolveLabel(item: WidgetItem, rc: WidgetRenderContext): string {
 function restyleAnsi(text: string, open: string): string {
 	if (!open) return text;
 	if (!text.includes("\x1b[")) return open + text + "\x1b[0m";
-	return open + text.split("\x1b[0m").join("\x1b[0m" + open) + "\x1b[0m";
+	const parts = text.split("\x1b[0m");
+	let output = open + parts[0];
+	for (let index = 1; index < parts.length; index += 1) {
+		output += "\x1b[0m";
+		if (parts[index]) output += open + parts[index];
+	}
+	return output.endsWith("\x1b[0m") ? output : output + "\x1b[0m";
 }
 
 function prepareSegment(item: WidgetItem, rc: WidgetRenderContext): Segment | null {
@@ -61,24 +73,19 @@ function prepareSegment(item: WidgetItem, rc: WidgetRenderContext): Segment | nu
 	const glow = rc.config.overrides.glow ?? item.glow ?? false;
 	const level = colorLevel(rc.colorLevel, rc.theme);
 	const baseAnsi = fg ? fgAnsi(fg, rc.theme, rc.colorLevel) : "";
-	const emphasis = glow ? 0.7 : bold ? 0.35 : 0;
-	const emphasisBase = baseAnsi || (emphasis > 0 ? fgAnsi("text", rc.theme, rc.colorLevel) : "");
-	const open =
-		(emphasis > 0 ? brightenAnsi(emphasisBase, emphasis, level) : baseAnsi) +
-		(bg ? bgAnsi(bg, rc.theme, rc.colorLevel) : "") +
-		(bold || glow ? "\x1b[1m" : "") +
-		(dim ? "\x1b[2m" : "");
+	const glowAmount = glow ? GLOW_BRIGHTEN : 0;
+	const glowTarget = baseAnsi || (glowAmount > 0 ? fgAnsi("text", rc.theme, rc.colorLevel) : "");
+	const glowAnsi = glowAmount > 0 ? brightenAnsi(glowTarget, glowAmount, level) : baseAnsi;
+	// Bold is weight only: lifting the color here would repaint the whole line and hide the effect
+	// whenever glow already lifted it.
+	const weight = (bold ? "\x1b[1m" : "") + (dim ? "\x1b[2m" : "");
+	const open = glowAnsi + (bg ? bgAnsi(bg, rc.theme, rc.colorLevel) : "") + weight;
 	const styledLabel = label ? (open ? open + label + "\x1b[0m" : label) : "";
-	const styledValue = glow
-		? (open ? open + stripAnsi(value) + "\x1b[0m" : stripAnsi(value))
-		: hasAnsi(value)
-			? restyleAnsi(
-					emphasis > 0 ? brightenAnsiText(value, emphasis, level) : value,
-					(bold ? "\x1b[1m" : "") + (dim ? "\x1b[2m" : ""),
-				)
-			: open
-				? open + value + "\x1b[0m"
-				: value;
+	const styledValue = hasAnsi(value)
+		? restyleAnsi(glowAmount > 0 ? brightenAnsiText(value, glowAmount, level) : value, weight)
+		: open
+			? open + value + "\x1b[0m"
+			: value;
 	let text = styledLabel + styledValue;
 	const pad = rc.config.defaultPaddingSide;
 	if (definition.type !== "separator") {
