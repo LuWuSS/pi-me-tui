@@ -32,3 +32,9 @@ tmp-*.js
 tmp-style-check*.mjs
 verify-tmp.mjs
 scratch/
+
+# Local reference material, never published
+/ccstatusline-zh/
+/pi-open-tui/
+/PI_PLUGIN_GUIDE.md
+/pi-me-tui需求文档.md
