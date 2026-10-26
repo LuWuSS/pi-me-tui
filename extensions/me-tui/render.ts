@@ -86,21 +86,19 @@ function prepareSegment(item: WidgetItem, rc: WidgetRenderContext): Segment | nu
 	// System-theme dim tokens append SGR 2 to their color, and a later SGR 1 cannot win over a
 	// faint attribute. Bold drops the faint it never asked for so the label really renders bold.
 	const baseAnsi = bold ? rawAnsi.replace(/\x1b\[2m/g, "") : rawAnsi;
+	// Bold and glow both read as "the color got heavier", so they share one lift. Bold also emits
+	// SGR 1; where the terminal has no CJK bold face the lift is what carries the impression.
+	const boldLift = bold ? (rc.config.overrides.boldLift ?? DEFAULT_BOLD_LIFT) : 0;
 	const glowLift = glow ? (rc.config.overrides.glowStrength ?? DEFAULT_GLOW_STRENGTH) : 0;
-	// Labels are usually CJK, and many terminals do not synthesize bold for them. Bold therefore
-	// also lifts the label a little (configurable, 0 = weight only). Values keep their own colors
-	// and rely on the SGR 1 weight.
-	const labelLift = glowLift + (bold ? (rc.config.overrides.boldLift ?? DEFAULT_BOLD_LIFT) : 0);
-	const labelAnsi = liftAnsi(baseAnsi, labelLift, level, rc);
-	const valueAnsi = liftAnsi(baseAnsi, glowLift, level, rc);
+	const lift = Math.min(100, boldLift + glowLift);
+	const liftedAnsi = liftAnsi(baseAnsi, lift, level, rc);
 	const weight = (bold ? "\x1b[1m" : "") + (dim ? "\x1b[2m" : "");
-	const labelOpen = labelAnsi + (bg ? bgAnsi(bg, rc.theme, rc.colorLevel) : "") + weight;
-	const valueOpen = valueAnsi + (bg ? bgAnsi(bg, rc.theme, rc.colorLevel) : "") + weight;
-	const styledLabel = label ? (labelOpen ? labelOpen + label + "\x1b[0m" : label) : "";
+	const open = liftedAnsi + (bg ? bgAnsi(bg, rc.theme, rc.colorLevel) : "") + weight;
+	const styledLabel = label ? (open ? open + label + "\x1b[0m" : label) : "";
 	const styledValue = hasAnsi(value)
-		? restyleAnsi(glowLift > 0 ? brightenAnsiText(value, glowLift / 100, level) : value, weight)
-		: valueOpen
-			? valueOpen + value + "\x1b[0m"
+		? restyleAnsi(lift > 0 ? brightenAnsiText(value, lift / 100, level) : value, weight)
+		: open
+			? open + value + "\x1b[0m"
 			: value;
 	let text = styledLabel + styledValue;
 	const pad = rc.config.defaultPaddingSide;

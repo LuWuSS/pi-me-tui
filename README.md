@@ -112,10 +112,10 @@ Main menu:
 - Powerline: enable, theme, separators, background inversion, start/end caps, auto-align
 - Global style: colors, bold and its label lift, dim, glow and its strength, padding, icons, color level, flex mode
 - Colors are picked from a list that puts the named colors (8 basic, then the 8 bright ones) before the theme tokens, with each name rendered in its own color; custom hex/rgb/ansi is the last entry. Max width 0 clears the limit
-- The overlay paints the full terminal height with `customMessageBg`, so the chat behind it stays hidden
+- The overlay fills the full terminal size but keeps the terminal's own background, so the preview sits on the same backdrop as the real statusline
 - Highlighted options preview live (colors, icons, language, theme, labels, width); Enter commits, Esc goes back without saving
 - Settings fill the terminal and preview at statusline width; global bold/dim/glow/padding and Powerline separators preview immediately
-- Bold adds the bold attribute and lifts the label by 15% (0-100, adjustable) so CJK prefixes still change where the terminal does not synthesize bold; values keep their exact color. Glow lifts label and value by 30% (1-100, adjustable) without implying bold, so both can be combined. Line alignment is configurable per line (default split, left, center, right)
+- Bold adds the bold attribute plus a foreground lift of 15% (0-100, adjustable) applied to the whole item, which is what carries the impression where the terminal has no CJK bold face. Glow lifts label and value by 30% (1-100, adjustable) without implying bold, so both can be combined. Line alignment is configurable per line (default split, left, center, right)
 - Terminal/refresh: refresh interval, Git cache, custom-command cache, terminal-width cache
 - Export config to JSON
 - Import config with a diff preview; new shell commands are displayed and cancellation is the default

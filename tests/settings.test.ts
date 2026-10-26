@@ -421,9 +421,8 @@ test("settings render fills the terminal height with a padded background", () =>
 		assert.equal(visibleWidth(line), 100, "every line must fill the full overlay width");
 	}
 });
-test("settings overlay paints its background across every line", () => {
-	const background = "\x1b[48;5;17m";
-	const theme = { ...fakeTheme(), getBgAnsi: () => background } as unknown as ReturnType<typeof fakeTheme>;
+test("settings overlay keeps the terminal background and fills every line", () => {
+	const theme = { ...fakeTheme(), getBgAnsi: () => "\x1b[48;5;17m" } as unknown as ReturnType<typeof fakeTheme>;
 	const ui = new MeTuiSettings({
 		config: defaultConfig(),
 		theme,
@@ -436,7 +435,7 @@ test("settings overlay paints its background across every line", () => {
 	const lines = ui.render(80);
 	assert.ok(lines.length >= 30);
 	for (const line of lines) {
-		assert.ok(line.startsWith(background), "line must open the overlay background");
-		assert.ok(line.endsWith("\x1b[0m"), "line must reset after the background");
+		assert.equal(line.includes("\x1b[48;5;17m"), false, "the overlay must not paint a themed background");
+		assert.equal(visibleWidth(line), 80, "every line must cover the full width");
 	}
 });

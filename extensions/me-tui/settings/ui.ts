@@ -11,7 +11,7 @@ import {
 	visibleWidth,
 } from "@earendil-works/pi-tui";
 import type { SelectItem, SelectListTheme } from "@earendil-works/pi-tui";
-import { bgAnsi, isValidColorSpec, NAMED_COLOR_ORDER, NAMED_COLOR_SPECS, paint, POWERLINE_THEME_NAMES, themeColorTokens } from "../colors.ts";
+import { isValidColorSpec, NAMED_COLOR_ORDER, NAMED_COLOR_SPECS, paint, POWERLINE_THEME_NAMES, themeColorTokens } from "../colors.ts";
 import {
 	addItem,
 	addLine,
@@ -89,12 +89,6 @@ export interface MeTuiSettingsOptions {
 	preview: (config: MeTuiConfig, width: number) => string[];
 	onRequestRender: () => void;
 	terminalHeight?: () => number;
-}
-
-function applyBackground(text: string, background: string): string {
-	if (!background) return text;
-	if (!text.includes("\x1b[0m")) return background + text + "\x1b[0m";
-	return background + text.split("\x1b[0m").join("\x1b[0m" + background) + "\x1b[0m";
 }
 
 function localizedPair(zh: string, en: string): LocalizedText {
@@ -323,15 +317,16 @@ export class MeTuiSettings {
 		lines.push("");
 		lines.push(this.theme.fg("dim", this.hint()));
 		if (this.status) lines.push(this.theme.fg("warning", this.status));
-		const background = bgAnsi("customMessageBg", this.theme, this.config.colorLevel);
+		// The panel keeps the terminal's own background instead of painting a themed one, so the
+		// preview shows the same backdrop the real statusline sits on. The lines are full width,
+		// so their spaces still cover whatever is behind the overlay.
 		const painted = lines.map((line) => {
 			const text = truncateToWidth(`  ${line}`, safeWidth, "…");
-			const padded = text + " ".repeat(Math.max(0, safeWidth - visibleWidth(text)));
-			return applyBackground(padded, background);
+			return text + " ".repeat(Math.max(0, safeWidth - visibleWidth(text)));
 		});
 		const height = Math.max(0, Math.round(this.terminalHeight()));
 		if (height > painted.length) {
-			const blank = applyBackground(" ".repeat(safeWidth), background);
+			const blank = " ".repeat(safeWidth);
 			while (painted.length < height) painted.push(blank);
 		}
 		return painted;
@@ -891,9 +886,9 @@ export class MeTuiSettings {
 			this.configFieldRow("overrides.bold", this.t("全局粗体", "Global bold"), "boolean", () => this.config.overrides.bold === true, (value) => {
 				this.config.overrides.bold = value ? true : undefined;
 			}, undefined, undefined, undefined, undefined, this.t("只加字重，不改颜色", "Weight only, colors untouched")),
-			this.configFieldRow("overrides.boldLift", this.t("粗体提亮 (%)", "Bold lift (%)"), "number", () => this.config.overrides.boldLift ?? DEFAULT_BOLD_LIFT, (value) => {
+			this.configFieldRow("overrides.boldLift", this.t("前景色加粗 (%)", "Foreground lift (%)"), "number", () => this.config.overrides.boldLift ?? DEFAULT_BOLD_LIFT, (value) => {
 				this.config.overrides.boldLift = Number(value);
-			}, undefined, 0, 100, 5, this.t("只提亮前缀，0 = 纯字重", "Label only, 0 = weight only")),
+			}, undefined, 0, 100, 5, this.t("整条提亮，0 = 只加字重", "Whole item, 0 = weight only")),
 			this.configFieldRow("overrides.dim", this.t("全局暗色", "Global dim"), "boolean", () => this.config.overrides.dim === true, (value) => {
 				this.config.overrides.dim = value ? true : undefined;
 			}),

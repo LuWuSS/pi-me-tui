@@ -187,8 +187,8 @@ test("bold stays visible when glow is already on", () => {
 	assert.equal(glowOnly.includes("\x1b[1m"), false, "glow alone is not bold");
 	assert.ok(both.includes("\x1b[1m"), "bold still applies on top of glow");
 	assert.ok(both.split("\x1b[1m").length - 1 >= 2, "label and value both gain the bold attribute");
-	assert.ok(both.includes("\x1b[38;2;143;171;255m"), "the label lifts further on top of glow");
-	assert.ok(both.includes("\x1b[38;2;112;148;255m"), "the value keeps the glow color");
+	assert.ok(both.split("\x1b[38;2;143;171;255m").length - 1 >= 2, "label and value lift further on top of glow");
+	assert.equal(both.includes("\x1b[38;2;112;148;255m"), false, "bold pushes past the glow-only color");
 	assert.equal(stripAnsi(both), stripAnsi(glowOnly), "bold must not change the rendered text");
 });
 
@@ -212,13 +212,13 @@ test("ansi16 rgb colors map to real foreground and background codes", () => {
 	assert.equal(rgbBackground({ r: 255, g: 0, b: 0 }, "ansi16"), "\x1b[101m");
 });
 
-test("bold adds the attribute and lifts only the label", () => {
+test("bold adds the attribute and lifts the whole item", () => {
 	const config = defaultConfig();
 	config.lines = [[{ id: "provider", type: "provider", color: "#3366ff" }]];
 	config.overrides.bold = true;
 	const line = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 100)[0];
 	assert.ok(line.includes("\x1b[38;2;82;125;255m\x1b[1m供应商: "), JSON.stringify(line));
-	assert.ok(line.includes("\x1b[38;2;51;102;255m\x1b[1m◈"), "the value keeps its exact color");
+	assert.ok(line.includes("\x1b[38;2;82;125;255m\x1b[1m◈"), "the value lifts with the label");
 	assert.ok(line.split("\x1b[1m").length - 1 >= 2, "label and value both gain the bold attribute");
 });
 
