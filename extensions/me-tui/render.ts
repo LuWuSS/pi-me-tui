@@ -82,7 +82,10 @@ function prepareSegment(item: WidgetItem, rc: WidgetRenderContext): Segment | nu
 	const dim = rc.config.overrides.dim ?? item.dim ?? false;
 	const glow = rc.config.overrides.glow ?? item.glow ?? false;
 	const level = colorLevel(rc.colorLevel, rc.theme);
-	const baseAnsi = fg ? fgAnsi(fg, rc.theme, rc.colorLevel) : "";
+	const rawAnsi = fg ? fgAnsi(fg, rc.theme, rc.colorLevel) : "";
+	// System-theme dim tokens append SGR 2 to their color, and a later SGR 1 cannot win over a
+	// faint attribute. Bold drops the faint it never asked for so the label really renders bold.
+	const baseAnsi = bold ? rawAnsi.replace(/\x1b\[2m/g, "") : rawAnsi;
 	const glowLift = glow ? (rc.config.overrides.glowStrength ?? DEFAULT_GLOW_STRENGTH) : 0;
 	// Labels are usually CJK, and many terminals do not synthesize bold for them. Bold therefore
 	// also lifts the label a little (configurable, 0 = weight only). Values keep their own colors

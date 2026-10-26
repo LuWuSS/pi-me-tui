@@ -232,6 +232,20 @@ test("bold lift 0 keeps every color untouched", () => {
 	assert.ok(line.includes("\x1b[1m"));
 });
 
+test("bold drops the faint attribute that theme dim tokens append", () => {
+	const theme = {
+		...fakeTheme(),
+		getFgAnsi: (color: string) => (color === "muted" ? "\x1b[38;2;120;120;130m\x1b[2m" : ""),
+	} as ReturnType<typeof fakeTheme>;
+	const config = defaultConfig();
+	config.lines = [[{ id: "provider", type: "provider", color: "muted" }]];
+	config.overrides.bold = true;
+	config.overrides.boldLift = 0;
+	const line = renderAllLines(config, renderContext({ config, theme, colorLevel: "truecolor" }), 100)[0];
+	assert.equal(line.includes("\x1b[2m"), false, JSON.stringify(line));
+	assert.ok(line.includes("\x1b[1m供应商: "), JSON.stringify(line));
+});
+
 test("glow brightens theme-token colors too", () => {
 	const theme = {
 		...fakeTheme(),
