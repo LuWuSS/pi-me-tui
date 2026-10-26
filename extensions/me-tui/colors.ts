@@ -99,6 +99,20 @@ export function themeColorTokens(background = false): string[] {
 
 export const NAMED_COLOR_SPECS: string[] = Object.keys(NAMED_RGB);
 
+/** The eight basic named colors, in picker order. */
+export const BASE_COLOR_SPECS: string[] = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"];
+
+/**
+ * Named colors in picker order: the eight basics, then the bright set, then the extras. The bright
+ * colors carry most of the "bold" impression on a dark terminal, so they sit right after the basics
+ * instead of behind the theme tokens.
+ */
+export const NAMED_COLOR_ORDER: string[] = [
+	...BASE_COLOR_SPECS,
+	...NAMED_COLOR_SPECS.filter((spec) => spec.startsWith("bright")),
+	...NAMED_COLOR_SPECS.filter((spec) => !spec.startsWith("bright") && !BASE_COLOR_SPECS.includes(spec)),
+];
+
 export interface Rgb {
 	r: number;
 	g: number;

@@ -111,7 +111,7 @@ Main menu:
 - Edit statusline: manage lines and widgets, add/duplicate/delete/move/search, edit labels, widget options; after adding, Esc returns to the widget list and category picker to add more; r replaces the highlighted widget with another type from the categories
 - Powerline: enable, theme, separators, background inversion, start/end caps, auto-align
 - Global style: colors, bold and its label lift, dim, glow and its strength, padding, icons, color level, flex mode
-- Colors are picked from a list (default, theme tokens, named colors, custom hex/rgb/ansi); max width 0 clears the limit
+- Colors are picked from a list that puts the named colors (8 basic, then the 8 bright ones) before the theme tokens, with each name rendered in its own color; custom hex/rgb/ansi is the last entry. Max width 0 clears the limit
 - The overlay paints the full terminal height with `customMessageBg`, so the chat behind it stays hidden
 - Highlighted options preview live (colors, icons, language, theme, labels, width); Enter commits, Esc goes back without saving
 - Settings fill the terminal and preview at statusline width; global bold/dim/glow/padding and Powerline separators preview immediately

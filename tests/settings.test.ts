@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { defaultConfig } from "../extensions/me-tui/config.ts";
-import { NAMED_COLOR_SPECS, themeColorTokens } from "../extensions/me-tui/colors.ts";
+import { NAMED_COLOR_ORDER } from "../extensions/me-tui/colors.ts";
 import { MeTuiSettings } from "../extensions/me-tui/settings/ui.ts";
 import type { MeTuiConfig } from "../extensions/me-tui/types.ts";
 import { fakeTheme } from "./helpers.ts";
@@ -195,10 +195,23 @@ test("color picker lists options and applies a named color", () => {
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
 	assert.match(ui.render(100).join("\n"), /选择颜色/);
-	const steps = 1 + themeColorTokens(false).length + NAMED_COLOR_SPECS.indexOf("red");
+	const steps = 1 + NAMED_COLOR_ORDER.indexOf("red");
 	for (let index = 0; index < steps; index += 1) ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
 	assert.equal(lastConfig().lines[0][0].color, "red");
+});
+
+test("color picker paints each name in its own color", () => {
+	const initial = defaultConfig();
+	initial.lines[0][0] = { ...initial.lines[0][0], color: undefined };
+	const { ui } = createSettings(initial);
+	ui.handleInput("\r");
+	ui.handleInput("\r");
+	ui.handleInput("\u001b[B");
+	ui.handleInput("\u001b[B");
+	ui.handleInput("\r");
+	const raw = ui.render(100).join("\n");
+	assert.ok(raw.includes("\x1b[38;2;205;49;49m红色"), JSON.stringify(raw.slice(0, 400)));
 });
 
 test("color picker can clear a color", () => {
@@ -210,7 +223,7 @@ test("color picker can clear a color", () => {
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
-	const index = 1 + themeColorTokens(false).length + NAMED_COLOR_SPECS.indexOf("green");
+	const index = 1 + NAMED_COLOR_ORDER.indexOf("green");
 	for (let step = 0; step < index; step += 1) ui.handleInput("\u001b[A");
 	ui.handleInput("\r");
 	assert.equal(lastConfig().lines[0][0].color, undefined);
@@ -227,7 +240,7 @@ test("color picker previews the highlighted color before committing", () => {
 	ui.handleInput("\r");
 	ui.handleInput("\u001b[B");
 	ui.render(100);
-	assert.equal(previewed()?.lines[0][0].color, themeColorTokens(false)[0]);
+	assert.equal(previewed()?.lines[0][0].color, NAMED_COLOR_ORDER[0]);
 	assert.equal(lastConfig().lines[0][0].color, undefined);
 });
 

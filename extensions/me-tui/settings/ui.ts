@@ -11,7 +11,7 @@ import {
 	visibleWidth,
 } from "@earendil-works/pi-tui";
 import type { SelectItem, SelectListTheme } from "@earendil-works/pi-tui";
-import { bgAnsi, isValidColorSpec, NAMED_COLOR_SPECS, paint, POWERLINE_THEME_NAMES, themeColorTokens } from "../colors.ts";
+import { bgAnsi, isValidColorSpec, NAMED_COLOR_ORDER, NAMED_COLOR_SPECS, paint, POWERLINE_THEME_NAMES, themeColorTokens } from "../colors.ts";
 import {
 	addItem,
 	addLine,
@@ -1024,22 +1024,22 @@ export class MeTuiSettings {
 				activate: () => this.applyColor(undefined),
 			},
 		];
+		for (const spec of NAMED_COLOR_ORDER) {
+			this.colorChoices.set("color:named:" + spec, spec);
+			rows.push({
+				id: "color:named:" + spec,
+				label: mark(spec) + this.swatch(spec, background) + " " + this.paintedName(spec, this.colorName(spec), background),
+				description: `${spec} · ${spec.startsWith("bright") ? this.t("亮色", "bright") : this.t("常规色", "basic")}`,
+				activate: () => this.applyColor(spec),
+			});
+		}
 		for (const token of themeColorTokens(background)) {
 			this.colorChoices.set("color:theme:" + token, token);
 			rows.push({
 				id: "color:theme:" + token,
-				label: mark(token) + this.swatch(token, background) + " " + token,
-				description: this.t("主题色", "Theme color"),
+				label: mark(token) + this.swatch(token, background) + " " + this.paintedName(token, token, background),
+				description: `${token} · ${this.t("主题色", "theme")}`,
 				activate: () => this.applyColor(token),
-			});
-		}
-		for (const spec of NAMED_COLOR_SPECS) {
-			this.colorChoices.set("color:named:" + spec, spec);
-			rows.push({
-				id: "color:named:" + spec,
-				label: mark(spec) + this.swatch(spec, background) + " " + this.colorName(spec),
-				description: spec,
-				activate: () => this.applyColor(spec),
 			});
 		}
 		const custom = current !== "" && !this.isPresetColor(current, background);
@@ -1234,6 +1234,17 @@ export class MeTuiSettings {
 				: paint("●", { fg: spec, theme: this.theme, level: this.config.colorLevel });
 		} catch {
 			return "●";
+		}
+	}
+
+	/** Renders the color name in its own color, the way the palette preview reads best. */
+	private paintedName(spec: string, name: string, background: boolean): string {
+		try {
+			return background
+				? paint(` ${name} `, { bg: spec, theme: this.theme, level: this.config.colorLevel })
+				: paint(name, { fg: spec, theme: this.theme, level: this.config.colorLevel });
+		} catch {
+			return name;
 		}
 	}
 
