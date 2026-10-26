@@ -12,7 +12,7 @@ A configurable multi-line statusline for the Pi coding agent. It brings the data
 - Three-line default statusline; add (after the selected widget), duplicate, remove, reorder, search, and relabel widgets
 - 58 widgets in 9 categories: core, Git, tokens, speed, context, session, environment, custom, layout
 - Powerline with 7 built-in themes, custom separators, start/end caps, inverted backgrounds, and auto-align
-- Global overrides for foreground/background, bold, dim, glow, and padding side (global values take precedence over per-widget settings)
+- Global overrides for foreground/background, bold (with a 0-100 label lift), dim, glow (with 1-100 strength), and padding side (global values take precedence over per-widget settings)
 - Terminal options for color level, icon mode, refresh interval, and Git/custom-command/width cache TTLs
 - JSON config import/export with a diff preview; newly added shell commands are shown in full and require confirmation
 - Cache hit rate, input/output/total speed in compact t/s units (e.g. 8.44kt/s), context progress bars, Git ahead/behind, and worktree details
@@ -110,12 +110,12 @@ Main menu:
 
 - Edit statusline: manage lines and widgets, add/duplicate/delete/move/search, edit labels, widget options; after adding, Esc returns to the widget list and category picker to add more; r replaces the highlighted widget with another type from the categories
 - Powerline: enable, theme, separators, background inversion, start/end caps, auto-align
-- Global style: colors, bold, dim, glow, padding, icons, color level, flex mode
+- Global style: colors, bold and its label lift, dim, glow and its strength, padding, icons, color level, flex mode
 - Colors are picked from a list (default, theme tokens, named colors, custom hex/rgb/ansi); max width 0 clears the limit
 - The overlay paints the full terminal height with `customMessageBg`, so the chat behind it stays hidden
 - Highlighted options preview live (colors, icons, language, theme, labels, width); Enter commits, Esc goes back without saving
 - Settings fill the terminal and preview at statusline width; global bold/dim/glow/padding and Powerline separators preview immediately
-- Bold adds the bold attribute only and leaves colors untouched; glow lifts the widget color by 22% without implying bold, so both can be combined. Line alignment is configurable per line (default split, left, center, right)
+- Bold adds the bold attribute and lifts the label by 15% (0-100, adjustable) so CJK prefixes still change where the terminal does not synthesize bold; values keep their exact color. Glow lifts label and value by 30% (1-100, adjustable) without implying bold, so both can be combined. Line alignment is configurable per line (default split, left, center, right)
 - Terminal/refresh: refresh interval, Git cache, custom-command cache, terminal-width cache
 - Export config to JSON
 - Import config with a diff preview; new shell commands are displayed and cancellation is the default

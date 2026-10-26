@@ -20,6 +20,10 @@ import { clamp, createWidgetId, deepClone, isPlainObject, safeNumber, sanitizeSi
 
 export const CONFIG_VERSION = 1 as const;
 export const MAX_LINES = 4;
+/** Default lift applied to the label when bold is on, so prefixes change even where CJK bold is not synthesized. */
+export const DEFAULT_BOLD_LIFT = 15;
+/** Default glow strength. */
+export const DEFAULT_GLOW_STRENGTH = 30;
 
 function sep(id: string): WidgetItem {
 	return { id, type: "separator", character: "│", color: "dim" };
@@ -290,6 +294,12 @@ function normalizeOverrides(input: unknown): GlobalOverrides {
 	if (input.bold === true) result.bold = true;
 	if (input.dim === true) result.dim = true;
 	if (input.glow === true) result.glow = true;
+	if (typeof input.boldLift === "number" && Number.isFinite(input.boldLift)) {
+		result.boldLift = Math.round(clamp(input.boldLift, 0, 100));
+	}
+	if (typeof input.glowStrength === "number" && Number.isFinite(input.glowStrength)) {
+		result.glowStrength = Math.round(clamp(input.glowStrength, 1, 100));
+	}
 	return result;
 }
 

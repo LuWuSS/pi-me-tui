@@ -159,6 +159,15 @@ test("normalizeConfig drops disabled overrides so per-item styles still work", (
 	assert.deepEqual(config.overrides, {});
 });
 
+test("normalizeConfig clamps the bold lift and glow strength", () => {
+	const config = normalizeConfig({ overrides: { boldLift: 250, glowStrength: 0 } });
+	assert.equal(config.overrides.boldLift, 100);
+	assert.equal(config.overrides.glowStrength, 1);
+	const rounded = normalizeConfig({ overrides: { boldLift: 12.6, glowStrength: 42.4 } });
+	assert.equal(rounded.overrides.boldLift, 13);
+	assert.equal(rounded.overrides.glowStrength, 42);
+});
+
 
 test("replaceItem swaps the widget type in place", () => {
 	const config = defaultConfig();

@@ -287,7 +287,7 @@ test("global padding previews and applies the highlighted side", () => {
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
-	for (let index = 0; index < 8; index += 1) ui.handleInput("\u001b[B");
+	for (let index = 0; index < 10; index += 1) ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
 	ui.handleInput("\u001b[B");
 	ui.render(100);
@@ -308,13 +308,45 @@ test("global bold toggles and previews immediately", () => {
 	assert.equal(lastConfig().overrides.bold, true);
 });
 
+test("bold lift row previews and applies a typed value", () => {
+	const { ui, previewed, lastConfig } = createSettings();
+	ui.handleInput("\u001b[B");
+	ui.handleInput("\u001b[B");
+	ui.handleInput("\r");
+	for (let index = 0; index < 6; index += 1) ui.handleInput("\u001b[B");
+	ui.handleInput("\r");
+	for (let index = 0; index < 2; index += 1) ui.handleInput("\u007f");
+	ui.handleInput("4");
+	ui.handleInput("0");
+	ui.render(100);
+	assert.equal(previewed()?.overrides.boldLift, 40);
+	ui.handleInput("\r");
+	assert.equal(lastConfig().overrides.boldLift, 40);
+});
+
+test("glow strength row previews and applies a typed value", () => {
+	const { ui, previewed, lastConfig } = createSettings();
+	ui.handleInput("\u001b[B");
+	ui.handleInput("\u001b[B");
+	ui.handleInput("\r");
+	for (let index = 0; index < 9; index += 1) ui.handleInput("\u001b[B");
+	ui.handleInput("\r");
+	for (let index = 0; index < 2; index += 1) ui.handleInput("\u007f");
+	ui.handleInput("5");
+	ui.handleInput("0");
+	ui.render(100);
+	assert.equal(previewed()?.overrides.glowStrength, 50);
+	ui.handleInput("\r");
+	assert.equal(lastConfig().overrides.glowStrength, 50);
+});
+
 
 test("global dim toggles and previews immediately", () => {
 	const { ui, previewed, lastConfig } = createSettings();
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
-	for (let index = 0; index < 6; index += 1) ui.handleInput("\u001b[B");
+	for (let index = 0; index < 7; index += 1) ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
 	ui.render(100);
 	assert.equal(previewed()?.overrides.dim, true);
@@ -326,7 +358,7 @@ test("global glow toggles and previews immediately", () => {
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
-	for (let index = 0; index < 7; index += 1) ui.handleInput("\u001b[B");
+	for (let index = 0; index < 8; index += 1) ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
 	ui.render(100);
 	assert.equal(previewed()?.overrides.glow, true);

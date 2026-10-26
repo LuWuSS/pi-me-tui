@@ -151,15 +151,23 @@ test("bold restyles the label and an ANSI-colored value", () => {
 	assert.ok(line.split("\x1b[1m").length - 1 >= 2, "the linked value should also be bold");
 });
 
-test("glow lifts the color softly for both the label and the value", () => {
+test("glow lifts the label and the value by the configured strength", () => {
 	const config = defaultConfig();
 	config.lines = [[{ id: "provider", type: "provider", color: "#3366ff", glow: true }]];
 	const line = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 100)[0];
-	const glow = "\x1b[38;2;96;136;255m";
+	const glow = "\x1b[38;2;112;148;255m";
 	assert.ok(line.includes(glow), JSON.stringify(line));
 	assert.equal(line.includes("\x1b[38;2;51;102;255m"), false);
 	assert.ok(line.split(glow).length - 1 >= 2, "the label and value should both glow");
 	assert.equal(line.includes("\x1b[1m"), false, "glow must not imply bold");
+});
+
+test("glow strength is configurable", () => {
+	const config = defaultConfig();
+	config.lines = [[{ id: "provider", type: "provider", color: "#3366ff", glow: true }]];
+	config.overrides.glowStrength = 100;
+	const line = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 100)[0];
+	assert.ok(line.includes("\x1b[38;2;255;255;255m"), JSON.stringify(line));
 });
 
 test("glow keeps the value's own ANSI styling", () => {
@@ -179,7 +187,8 @@ test("bold stays visible when glow is already on", () => {
 	assert.equal(glowOnly.includes("\x1b[1m"), false, "glow alone is not bold");
 	assert.ok(both.includes("\x1b[1m"), "bold still applies on top of glow");
 	assert.ok(both.split("\x1b[1m").length - 1 >= 2, "label and value both gain the bold attribute");
-	assert.equal(both.includes("\x1b[38;2;96;136;255m"), true, "bold leaves the glow color alone");
+	assert.ok(both.includes("\x1b[38;2;143;171;255m"), "the label lifts further on top of glow");
+	assert.ok(both.includes("\x1b[38;2;112;148;255m"), "the value keeps the glow color");
 	assert.equal(stripAnsi(both), stripAnsi(glowOnly), "bold must not change the rendered text");
 });
 
@@ -203,14 +212,24 @@ test("ansi16 rgb colors map to real foreground and background codes", () => {
 	assert.equal(rgbBackground({ r: 255, g: 0, b: 0 }, "ansi16"), "\x1b[101m");
 });
 
-test("bold keeps the configured color and only adds the bold attribute", () => {
+test("bold adds the attribute and lifts only the label", () => {
 	const config = defaultConfig();
-	config.lines = [[{ id: "provider", type: "provider", color: "#3366ff", bold: true }]];
+	config.lines = [[{ id: "provider", type: "provider", color: "#3366ff" }]];
+	config.overrides.bold = true;
 	const line = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 100)[0];
-	const original = "\x1b[38;2;51;102;255m";
-	assert.ok(line.includes("\x1b[1m"), JSON.stringify(line));
-	assert.ok(line.split(original).length - 1 >= 2, "label and value keep the configured color");
-	assert.equal(line.includes("\x1b[38;2;122;156;255m"), false, "bold must not repaint the color");
+	assert.ok(line.includes("\x1b[38;2;82;125;255m\x1b[1m供应商: "), JSON.stringify(line));
+	assert.ok(line.includes("\x1b[38;2;51;102;255m\x1b[1m◈"), "the value keeps its exact color");
+	assert.ok(line.split("\x1b[1m").length - 1 >= 2, "label and value both gain the bold attribute");
+});
+
+test("bold lift 0 keeps every color untouched", () => {
+	const config = defaultConfig();
+	config.lines = [[{ id: "provider", type: "provider", color: "#3366ff" }]];
+	config.overrides.bold = true;
+	config.overrides.boldLift = 0;
+	const line = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 100)[0];
+	assert.ok(line.split("\x1b[38;2;51;102;255m").length - 1 >= 2, JSON.stringify(line));
+	assert.ok(line.includes("\x1b[1m"));
 });
 
 test("glow brightens theme-token colors too", () => {
@@ -221,7 +240,7 @@ test("glow brightens theme-token colors too", () => {
 	const config = defaultConfig();
 	config.lines = [[{ id: "provider", type: "provider", glow: true }]];
 	const line = renderAllLines(config, renderContext({ config, theme, colorLevel: "truecolor" }), 100)[0];
-	const glow = "\x1b[38;2;151;182;249m";
+	const glow = "\x1b[38;2;162;190;249m";
 	assert.ok(line.split(glow).length - 1 >= 2, JSON.stringify(line));
 });
 

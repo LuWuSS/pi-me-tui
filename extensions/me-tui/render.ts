@@ -12,6 +12,7 @@ import {
 	rgbBackground,
 	rgbForeground,
 } from "./colors.ts";
+import { DEFAULT_BOLD_LIFT, DEFAULT_GLOW_STRENGTH } from "./config.ts";
 import { getWidget } from "./registry.ts";
 import type { LineAlign, MeTuiConfig, WidgetItem, WidgetRenderContext } from "./types.ts";
 import { hasAnsi, stripAnsi } from "./utils.ts";
@@ -27,10 +28,19 @@ interface Segment {
 }
 
 /**
- * How far glow lifts a foreground toward white. Kept small so the hue stays readable; the extra
- * weight comes from bold, which is a separate SGR attribute rather than a color shift.
+ * Lifts a foreground toward white by `percent` (0-100). 0 leaves the color untouched, which keeps
+ * bold free of any color shift when its lift is set to 0.
  */
-const GLOW_BRIGHTEN = 0.22;
+function liftAnsi(
+	ansi: string,
+	percent: number,
+	level: "ansi16" | "ansi256" | "truecolor",
+	rc: WidgetRenderContext,
+): string {
+	if (percent <= 0) return ansi;
+	const source = ansi || fgAnsi("text", rc.theme, rc.colorLevel);
+	return brightenAnsi(source, Math.min(100, percent) / 100, level);
+}
 
 function resolveLabel(item: WidgetItem, rc: WidgetRenderContext): string {
 	if (item.rawValue) return "";
@@ -73,18 +83,21 @@ function prepareSegment(item: WidgetItem, rc: WidgetRenderContext): Segment | nu
 	const glow = rc.config.overrides.glow ?? item.glow ?? false;
 	const level = colorLevel(rc.colorLevel, rc.theme);
 	const baseAnsi = fg ? fgAnsi(fg, rc.theme, rc.colorLevel) : "";
-	const glowAmount = glow ? GLOW_BRIGHTEN : 0;
-	const glowTarget = baseAnsi || (glowAmount > 0 ? fgAnsi("text", rc.theme, rc.colorLevel) : "");
-	const glowAnsi = glowAmount > 0 ? brightenAnsi(glowTarget, glowAmount, level) : baseAnsi;
-	// Bold is weight only: lifting the color here would repaint the whole line and hide the effect
-	// whenever glow already lifted it.
+	const glowLift = glow ? (rc.config.overrides.glowStrength ?? DEFAULT_GLOW_STRENGTH) : 0;
+	// Labels are usually CJK, and many terminals do not synthesize bold for them. Bold therefore
+	// also lifts the label a little (configurable, 0 = weight only). Values keep their own colors
+	// and rely on the SGR 1 weight.
+	const labelLift = glowLift + (bold ? (rc.config.overrides.boldLift ?? DEFAULT_BOLD_LIFT) : 0);
+	const labelAnsi = liftAnsi(baseAnsi, labelLift, level, rc);
+	const valueAnsi = liftAnsi(baseAnsi, glowLift, level, rc);
 	const weight = (bold ? "\x1b[1m" : "") + (dim ? "\x1b[2m" : "");
-	const open = glowAnsi + (bg ? bgAnsi(bg, rc.theme, rc.colorLevel) : "") + weight;
-	const styledLabel = label ? (open ? open + label + "\x1b[0m" : label) : "";
+	const labelOpen = labelAnsi + (bg ? bgAnsi(bg, rc.theme, rc.colorLevel) : "") + weight;
+	const valueOpen = valueAnsi + (bg ? bgAnsi(bg, rc.theme, rc.colorLevel) : "") + weight;
+	const styledLabel = label ? (labelOpen ? labelOpen + label + "\x1b[0m" : label) : "";
 	const styledValue = hasAnsi(value)
-		? restyleAnsi(glowAmount > 0 ? brightenAnsiText(value, glowAmount, level) : value, weight)
-		: open
-			? open + value + "\x1b[0m"
+		? restyleAnsi(glowLift > 0 ? brightenAnsiText(value, glowLift / 100, level) : value, weight)
+		: valueOpen
+			? valueOpen + value + "\x1b[0m"
 			: value;
 	let text = styledLabel + styledValue;
 	const pad = rc.config.defaultPaddingSide;

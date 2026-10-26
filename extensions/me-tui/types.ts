@@ -58,6 +58,10 @@ export interface GlobalOverrides {
 	bold?: boolean;
 	dim?: boolean;
 	glow?: boolean;
+	/** Extra lift applied to the label when bold is on, 0-100. 0 keeps the color untouched. */
+	boldLift?: number;
+	/** Glow strength, 1-100. */
+	glowStrength?: number;
 }
 
 export interface MeTuiConfig {

@@ -17,6 +17,8 @@ import {
 	addLine,
 	allItems,
 	defaultConfig,
+	DEFAULT_BOLD_LIFT,
+	DEFAULT_GLOW_STRENGTH,
 	itemCount,
 	lineCount,
 	moveItem,
@@ -889,12 +891,18 @@ export class MeTuiSettings {
 			this.configFieldRow("overrides.bold", this.t("全局粗体", "Global bold"), "boolean", () => this.config.overrides.bold === true, (value) => {
 				this.config.overrides.bold = value ? true : undefined;
 			}, undefined, undefined, undefined, undefined, this.t("只加字重，不改颜色", "Weight only, colors untouched")),
+			this.configFieldRow("overrides.boldLift", this.t("粗体提亮 (%)", "Bold lift (%)"), "number", () => this.config.overrides.boldLift ?? DEFAULT_BOLD_LIFT, (value) => {
+				this.config.overrides.boldLift = Number(value);
+			}, undefined, 0, 100, 5, this.t("只提亮前缀，0 = 纯字重", "Label only, 0 = weight only")),
 			this.configFieldRow("overrides.dim", this.t("全局暗色", "Global dim"), "boolean", () => this.config.overrides.dim === true, (value) => {
 				this.config.overrides.dim = value ? true : undefined;
 			}),
 			this.configFieldRow("overrides.glow", this.t("全局发光", "Global glow"), "boolean", () => this.config.overrides.glow === true, (value) => {
 				this.config.overrides.glow = value ? true : undefined;
 			}, undefined, undefined, undefined, undefined, this.t("柔和高亮，可与粗体叠加", "Soft lift, stacks with bold")),
+			this.configFieldRow("overrides.glowStrength", this.t("发光强度 (%)", "Glow strength (%)"), "number", () => this.config.overrides.glowStrength ?? DEFAULT_GLOW_STRENGTH, (value) => {
+				this.config.overrides.glowStrength = Number(value);
+			}, undefined, 1, 100, 5, this.t("1 最弱，100 最亮", "1 is subtle, 100 is brightest")),
 			this.configFieldRow("padding", this.t("默认内边距", "Default padding"), "enum", () => this.config.defaultPaddingSide, (value) => {
 				this.config.defaultPaddingSide = String(value) as PaddingSide;
 			}, [
@@ -1361,7 +1369,10 @@ export class MeTuiSettings {
 					value: String(raw ?? ""),
 					allowEmpty: kind === "text",
 					preview:
-						id === "compactThreshold" || id.startsWith("powerline.")
+						id === "compactThreshold" ||
+						id === "overrides.boldLift" ||
+						id === "overrides.glowStrength" ||
+						id.startsWith("powerline.")
 							? (value) => this.previewGlobalInput(id, kind, value, min, max)
 							: undefined,
 					onSubmit: (value) => {
