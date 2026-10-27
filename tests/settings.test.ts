@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { defaultConfig } from "../extensions/me-tui/config.ts";
-import { NAMED_COLOR_ORDER } from "../extensions/me-tui/colors.ts";
+import { COLOR_PALETTE } from "../extensions/me-tui/colors.ts";
 import { stripAnsi } from "../extensions/me-tui/utils.ts";
 import { MeTuiSettings } from "../extensions/me-tui/settings/ui.ts";
 import type { MeTuiConfig } from "../extensions/me-tui/types.ts";
@@ -196,7 +196,7 @@ test("color picker lists options and applies a named color", () => {
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
 	assert.match(ui.render(100).join("\n"), /选择颜色/);
-	const steps = 1 + NAMED_COLOR_ORDER.indexOf("brightred");
+	const steps = 1 + COLOR_PALETTE.findIndex((entry) => entry.spec === "brightred");
 	for (let index = 0; index < steps; index += 1) ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
 	assert.equal(lastConfig().lines[0][0].color, "brightred");
@@ -212,7 +212,7 @@ test("color picker paints each name in its own color", () => {
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
 	const raw = ui.render(100).join("\n");
-	assert.ok(raw.includes("\x1b[38;2;241;76;76m亮红"), JSON.stringify(raw.slice(0, 400)));
+	assert.ok(raw.includes("\x1b[38;2;241;76;76m赤"), JSON.stringify(raw.slice(0, 400)));
 });
 
 test("color picker hides colors that are too dark to read", () => {
@@ -223,22 +223,22 @@ test("color picker hides colors that are too dark to read", () => {
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
 	const text = ui.render(100).map(stripAnsi).join("\n");
-	assert.equal(NAMED_COLOR_ORDER.includes("black"), false);
-	assert.equal(NAMED_COLOR_ORDER.includes("gray"), false);
-	assert.ok(NAMED_COLOR_ORDER.includes("brightcyan"), "bright colors stay");
+	assert.equal(COLOR_PALETTE.some((entry) => entry.spec === "black"), false);
+	assert.equal(COLOR_PALETTE.some((entry) => entry.spec === "gray"), false);
+	assert.ok(COLOR_PALETTE.some((entry) => entry.spec === "brightcyan"), "bright colors stay");
 	assert.equal(text.includes("黑色"), false);
 });
 
 test("color picker can clear a color", () => {
 	const config = defaultConfig();
-	config.lines[0][0].color = "green";
+	config.lines[0][0].color = "brightgreen";
 	const { ui, lastConfig } = createSettings(config);
 	ui.handleInput("\r");
 	ui.handleInput("\r");
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
-	const index = 1 + NAMED_COLOR_ORDER.indexOf("green");
+	const index = 1 + COLOR_PALETTE.findIndex((entry) => entry.spec === "brightgreen");
 	for (let step = 0; step < index; step += 1) ui.handleInput("\u001b[A");
 	ui.handleInput("\r");
 	assert.equal(lastConfig().lines[0][0].color, undefined);
@@ -255,7 +255,7 @@ test("color picker previews the highlighted color before committing", () => {
 	ui.handleInput("\r");
 	ui.handleInput("\u001b[B");
 	ui.render(100);
-	assert.equal(previewed()?.lines[0][0].color, NAMED_COLOR_ORDER[0]);
+	assert.equal(previewed()?.lines[0][0].color, COLOR_PALETTE[0].spec);
 	assert.equal(lastConfig().lines[0][0].color, undefined);
 });
 

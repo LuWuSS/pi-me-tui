@@ -19,9 +19,9 @@ function renderItem(item: WidgetItem, overrides: Parameters<typeof renderContext
 	return renderWith(item, renderContext(overrides));
 }
 
-test("registry exposes all 58 widgets in nine categories", () => {
-	assert.equal(allWidgets().length, 58);
-	assert.equal(new Set(allWidgets().map((widget) => widget.type)).size, 58);
+test("registry exposes all 59 widgets in nine categories", () => {
+	assert.equal(allWidgets().length, 59);
+	assert.equal(new Set(allWidgets().map((widget) => widget.type)).size, 59);
 	const total = [
 		"core",
 		"git",
@@ -33,11 +33,11 @@ test("registry exposes all 58 widgets in nine categories", () => {
 		"custom",
 		"layout",
 	].reduce((sum, category) => sum + widgetsInCategory(category as never).length, 0);
-	assert.equal(total, 58);
+	assert.equal(total, 59);
 	assert.equal(widgetsInCategory("git").length, 19);
 	assert.equal(widgetsInCategory("token").length, 9);
 	assert.equal(widgetsInCategory("speed").length, 6);
-	assert.equal(widgetsInCategory("context").length, 5);
+	assert.equal(widgetsInCategory("context").length, 6);
 	assert.equal(widgetsInCategory("session").length, 7);
 	assert.equal(widgetsInCategory("custom").length, 4);
 });
@@ -135,6 +135,21 @@ test("context widgets derive percentage, usable percentage, and bars", () => {
 	assert.match(short ?? "", /^\[█░+\] 12\.5%$/);
 	const slider = renderItem({ id: "b", type: "context-bar", metadata: { mode: "slider-only", width: "5" } });
 	assert.equal(slider?.startsWith("▰"), true);
+});
+
+test("context window widget rounds the limit to K or M", () => {
+	assert.equal(renderItem({ id: "w", type: "context-window" }), "[200K]");
+	const rc = renderContext();
+	const windowed = (contextWindow: number) =>
+		({
+			...rc,
+			ctx: {
+				...rc.ctx,
+				getContextUsage: () => ({ tokens: 0, contextWindow, percent: 0 }),
+			} as typeof rc.ctx,
+		});
+	assert.equal(renderWith({ id: "w", type: "context-window" }, windowed(1_048_576)), "[1M]");
+	assert.equal(renderWith({ id: "w", type: "context-window" }, windowed(32_000)), "[32K]");
 });
 
 test("session, env, custom, and layout widgets render", () => {

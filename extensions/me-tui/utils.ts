@@ -85,6 +85,17 @@ export function formatPercent(value: number, digits = 1): string {
 	return trimFixed(Math.max(0, Math.min(100, safeNumber(value))), digits) + "%";
 }
 
+/**
+ * Context window as a bracketed approximate size: `[200K]`, `[1M]`. Rounded to a whole number with
+ * K as the smallest unit, so it never shows decimals.
+ */
+export function formatContextWindow(tokens: number): string | null {
+	if (!Number.isFinite(tokens) || tokens <= 0) return null;
+	const thousands = Math.round(tokens / 1_000);
+	if (thousands >= 1_000) return `[${Math.round(thousands / 1_000)}M]`;
+	return `[${thousands}K]`;
+}
+
 export function formatSpeed(tokensPerSecond: number): string {
 	if (!Number.isFinite(tokensPerSecond) || tokensPerSecond <= 0) return "-";
 	if (tokensPerSecond < 1_000) return trimFixed(tokensPerSecond, 1) + "t/s";

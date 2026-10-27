@@ -1,5 +1,5 @@
 import type { Theme, ThemeBg, ThemeColor } from "@earendil-works/pi-coding-agent";
-import type { ColorLevel } from "./types.ts";
+import type { ColorLevel, LocalizedText } from "./types.ts";
 
 const RESET = "\x1b[0m";
 
@@ -91,6 +91,10 @@ const NAMED_RGB: Record<string, [number, number, number]> = {
 	lime: [50, 205, 50],
 	navy: [0, 0, 128],
 	silver: [192, 192, 192],
+	coral: [255, 127, 80],
+	gold: [255, 215, 0],
+	sky: [79, 195, 247],
+	violet: [179, 136, 255],
 };
 
 export function themeColorTokens(background = false): string[] {
@@ -99,40 +103,69 @@ export function themeColorTokens(background = false): string[] {
 
 export const NAMED_COLOR_SPECS: string[] = Object.keys(NAMED_RGB);
 
-/** The eight basic named colors, in picker order. */
-export const BASE_COLOR_SPECS: string[] = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"];
-
-/**
- * Colors dimmer than this are unreadable on a dark terminal, so the picker leaves them out: they
- * only add scrolling and nobody can actually use them in a statusline.
- */
-export const MIN_PICKER_LUMINANCE = 0.2;
-
-/**
- * Named colors in picker order: the eight basics, then the bright set, then the extras, minus the
- * ones too dark to read. The bright colors carry most of the "bold" impression on a dark terminal,
- * so they sit right after the basics instead of behind the theme tokens.
- */
-export const NAMED_COLOR_ORDER: string[] = [
-	...BASE_COLOR_SPECS,
-	...NAMED_COLOR_SPECS.filter((spec) => spec.startsWith("bright")),
-	...NAMED_COLOR_SPECS.filter((spec) => !spec.startsWith("bright") && !BASE_COLOR_SPECS.includes(spec)),
-].filter(isReadableOnDark);
-
-/** True when the color is bright enough to be read on a dark background. */
-export function isReadableOnDark(spec: string): boolean {
-	const parsed = parseColorSpec(spec);
-	if (!parsed || parsed.kind !== "rgb") return true;
-	return relativeLuminance(parsed.rgb) >= MIN_PICKER_LUMINANCE;
+export interface PaletteEntry {
+	spec: string;
+	label: LocalizedText;
 }
 
-/** WCAG relative luminance of an sRGB color, 0 (black) to 1 (white). */
-export function relativeLuminance(rgb: Rgb): number {
-	const channel = (value: number): number => {
-		const ratio = Math.min(255, Math.max(0, value)) / 255;
-		return ratio <= 0.03928 ? ratio / 12.92 : ((ratio + 0.055) / 1.055) ** 2.4;
-	};
-	return 0.2126 * channel(rgb.r) + 0.7152 * channel(rgb.g) + 0.0722 * channel(rgb.b);
+/**
+ * The picker palette: nine plain colors plus six mixed bright ones. Everything here is readable on
+ * a dark terminal, and the names are colors rather than theme identifiers.
+ */
+export const COLOR_PALETTE: PaletteEntry[] = [
+	{ spec: "brightred", label: { zh: "赤", en: "Red" } },
+	{ spec: "orange", label: { zh: "橙", en: "Orange" } },
+	{ spec: "brightyellow", label: { zh: "黄", en: "Yellow" } },
+	{ spec: "brightgreen", label: { zh: "绿", en: "Green" } },
+	{ spec: "brightcyan", label: { zh: "青", en: "Cyan" } },
+	{ spec: "brightblue", label: { zh: "蓝", en: "Blue" } },
+	{ spec: "brightmagenta", label: { zh: "紫", en: "Purple" } },
+	{ spec: "pink", label: { zh: "粉", en: "Pink" } },
+	{ spec: "brightwhite", label: { zh: "白", en: "White" } },
+	{ spec: "coral", label: { zh: "珊瑚", en: "Coral" } },
+	{ spec: "gold", label: { zh: "金", en: "Gold" } },
+	{ spec: "lime", label: { zh: "青绿", en: "Lime" } },
+	{ spec: "sky", label: { zh: "天蓝", en: "Sky" } },
+	{ spec: "violet", label: { zh: "紫罗兰", en: "Violet" } },
+	{ spec: "silver", label: { zh: "银", en: "Silver" } },
+];
+
+/** Theme tokens worth using in a statusline, named by what they mean instead of their identifier. */
+export const THEME_PALETTE: PaletteEntry[] = [
+	{ spec: "accent", label: { zh: "主题强调", en: "Accent" } },
+	{ spec: "text", label: { zh: "正文", en: "Text" } },
+	{ spec: "success", label: { zh: "成功", en: "Success" } },
+	{ spec: "warning", label: { zh: "警告", en: "Warning" } },
+	{ spec: "error", label: { zh: "错误", en: "Error" } },
+	{ spec: "muted", label: { zh: "次要", en: "Muted" } },
+	{ spec: "dim", label: { zh: "暗色", en: "Dim" } },
+	{ spec: "mdLink", label: { zh: "链接", en: "Link" } },
+	{ spec: "mdCode", label: { zh: "代码", en: "Code" } },
+	{ spec: "thinkingText", label: { zh: "思考", en: "Thinking" } },
+];
+
+/** Background tokens, again named by what they mean. */
+export const BACKGROUND_PALETTE: PaletteEntry[] = [
+	{ spec: "selectedBg", label: { zh: "选中背景", en: "Selected" } },
+	{ spec: "searchMatchBg", label: { zh: "搜索命中", en: "Search match" } },
+	{ spec: "userMessageBg", label: { zh: "用户消息", en: "User message" } },
+	{ spec: "customMessageBg", label: { zh: "自定义消息", en: "Custom message" } },
+	{ spec: "toolPendingBg", label: { zh: "工具等待", en: "Tool pending" } },
+	{ spec: "toolSuccessBg", label: { zh: "工具成功", en: "Tool success" } },
+	{ spec: "toolErrorBg", label: { zh: "工具失败", en: "Tool error" } },
+];
+
+/** Hex form of a color spec, for the picker's description column. */
+export function hexOf(spec: string): string | undefined {
+	const parsed = parseColorSpec(spec);
+	if (!parsed || parsed.kind !== "rgb") return undefined;
+	const hex = (value: number): string => Math.min(255, Math.max(0, value)).toString(16).padStart(2, "0");
+	return `#${hex(parsed.rgb.r)}${hex(parsed.rgb.g)}${hex(parsed.rgb.b)}`;
+}
+
+/** True when the text already carries a foreground color of its own. */
+export function hasForegroundAnsi(text: string): boolean {
+	return /\x1b\[(?:38;[25];|3[0-7]m|9[0-7]m)/.test(text);
 }
 
 export interface Rgb {

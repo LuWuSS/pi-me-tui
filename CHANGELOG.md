@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Added
+
+- Context window widget showing the model's limit as `[200K]` / `[1M]`, rounded to a whole number with K as the smallest unit
+- The color picker offers a plain palette (赤橙黄绿青蓝紫 plus six mixed bright colors) and ten theme colors, all named in Chinese
+
 ### Changed
 
 - Thinking effort values use the English level names (`off`, `minimal`, `low`, `medium`, `high`, `xhigh`, `max`) in both languages
@@ -13,10 +18,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Global bold now only sets the bold attribute instead of repainting the widget color, and glow lifts the color by 22% without implying bold, so the two toggles are independent and stack
 - Bold and glow strengths are configurable: bold lifts the whole item by 15% (0-100, the "foreground lift") so it still reads as emphasis where the terminal has no CJK bold face, and glow uses a 1-100 strength (default 30) for label and value
 - The settings overlay keeps the terminal's own background instead of painting `customMessageBg`, so the preview matches the real statusline
-- The color picker lists the named colors before the theme tokens and renders every color name in its own color; colors too dark to read on a dark terminal are hidden, including chrome tokens such as borders and scrollbars
 
 ### Fixed
 
+- A widget color now applies to values that only carry a hyperlink, such as the Git branch, instead of being silently ignored
 - Configuration parse failures now show a warning instead of silently falling back to defaults
 - Documented `--approve` (`-a`) for removing a project-level package when the project is not trusted
 - Glow no longer flattens a widget value's own ANSI colors or drops OSC 8 hyperlinks

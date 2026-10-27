@@ -7,6 +7,7 @@ import {
 	colorLevel,
 	contrastColor,
 	fgAnsi,
+	hasForegroundAnsi,
 	paint,
 	powerlineColorAt,
 	rgbBackground,
@@ -95,8 +96,11 @@ function prepareSegment(item: WidgetItem, rc: WidgetRenderContext): Segment | nu
 	const weight = (bold ? "\x1b[1m" : "") + (dim ? "\x1b[2m" : "");
 	const open = liftedAnsi + (bg ? bgAnsi(bg, rc.theme, rc.colorLevel) : "") + weight;
 	const styledLabel = label ? (open ? open + label + "\x1b[0m" : label) : "";
+	// A value that carries its own foreground keeps it; one that only carries a hyperlink (git
+	// branch) still takes the widget color, otherwise the configured color does nothing.
+	const valueOpen = hasForegroundAnsi(value) ? weight : open;
 	const styledValue = hasAnsi(value)
-		? restyleAnsi(lift > 0 ? brightenAnsiText(value, lift / 100, level) : value, weight)
+		? restyleAnsi(lift > 0 ? brightenAnsiText(value, lift / 100, level) : value, valueOpen)
 		: open
 			? open + value + "\x1b[0m"
 			: value;

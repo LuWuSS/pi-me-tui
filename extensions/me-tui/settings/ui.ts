@@ -12,13 +12,14 @@ import {
 } from "@earendil-works/pi-tui";
 import type { SelectItem, SelectListTheme } from "@earendil-works/pi-tui";
 import {
+	BACKGROUND_PALETTE,
+	COLOR_PALETTE,
+	hexOf,
 	isValidColorSpec,
-	MIN_PICKER_LUMINANCE,
-	NAMED_COLOR_ORDER,
 	NAMED_COLOR_SPECS,
 	paint,
 	POWERLINE_THEME_NAMES,
-	relativeLuminance,
+	THEME_PALETTE,
 	themeColorTokens,
 } from "../colors.ts";
 import {
@@ -99,16 +100,6 @@ export interface MeTuiSettingsOptions {
 	onRequestRender: () => void;
 	terminalHeight?: () => number;
 }
-
-/** Theme tokens that are chrome rather than text; a statusline color picker has no use for them. */
-const HIDDEN_FOREGROUND_TOKENS = new Set([
-	"border",
-	"borderAccent",
-	"borderMuted",
-	"scrollbarTrack",
-	"scrollbarThumb",
-	"searchMatchText",
-]);
 
 function localizedPair(zh: string, en: string): LocalizedText {
 	return { zh, en };
@@ -1038,22 +1029,31 @@ export class MeTuiSettings {
 				activate: () => this.applyColor(undefined),
 			},
 		];
-		for (const spec of NAMED_COLOR_ORDER) {
-			this.colorChoices.set("color:named:" + spec, spec);
+		for (const entry of COLOR_PALETTE) {
+			this.colorChoices.set("color:named:" + entry.spec, entry.spec);
+			const hex = hexOf(entry.spec);
 			rows.push({
-				id: "color:named:" + spec,
-				label: mark(spec) + this.swatch(spec, background) + " " + this.paintedName(spec, this.colorName(spec), background),
-				description: `${spec} · ${spec.startsWith("bright") ? this.t("亮色", "bright") : this.t("常规色", "basic")}`,
-				activate: () => this.applyColor(spec),
+				id: "color:named:" + entry.spec,
+				label:
+					mark(entry.spec) +
+					this.swatch(entry.spec, background) +
+					" " +
+					this.paintedName(entry.spec, localized(entry.label, this.config.language), background),
+				description: hex ? `${hex} · ${this.t("亮色", "bright")}` : this.t("亮色", "bright"),
+				activate: () => this.applyColor(entry.spec),
 			});
 		}
-		for (const token of this.readableThemeTokens(background)) {
-			this.colorChoices.set("color:theme:" + token, token);
+		for (const entry of background ? BACKGROUND_PALETTE : THEME_PALETTE) {
+			this.colorChoices.set("color:theme:" + entry.spec, entry.spec);
 			rows.push({
-				id: "color:theme:" + token,
-				label: mark(token) + this.swatch(token, background) + " " + this.paintedName(token, token, background),
-				description: `${token} · ${this.t("主题色", "theme")}`,
-				activate: () => this.applyColor(token),
+				id: "color:theme:" + entry.spec,
+				label:
+					mark(entry.spec) +
+					this.swatch(entry.spec, background) +
+					" " +
+					this.paintedName(entry.spec, localized(entry.label, this.config.language), background),
+				description: this.t("主题色", "theme"),
+				activate: () => this.applyColor(entry.spec),
 			});
 		}
 		const custom = current !== "" && !this.isPresetColor(current, background);
@@ -1241,19 +1241,6 @@ export class MeTuiSettings {
 		return rows;
 	}
 
-	/** Theme tokens the picker offers: no chrome tokens, nothing too dark to read. */
-	private readableThemeTokens(background: boolean): string[] {
-		const tokens = themeColorTokens(background);
-		if (background) return tokens;
-		const colors = (this.theme as unknown as { colors?: Record<string, { r: number; g: number; b: number }> })
-			.colors;
-		return tokens.filter((token) => {
-			if (HIDDEN_FOREGROUND_TOKENS.has(token)) return false;
-			const rgb = colors?.[token];
-			return !rgb || relativeLuminance(rgb) >= MIN_PICKER_LUMINANCE;
-		});
-	}
-
 	private swatch(spec: string, background: boolean): string {
 		try {
 			return background
@@ -1277,37 +1264,6 @@ export class MeTuiSettings {
 
 	private isPresetColor(spec: string, background: boolean): boolean {
 		return themeColorTokens(background).includes(spec) || NAMED_COLOR_SPECS.includes(spec);
-	}
-
-	private colorName(spec: string): string {
-		const names: Record<string, LocalizedText> = {
-			black: localizedPair("黑色", "black"),
-			red: localizedPair("红色", "red"),
-			green: localizedPair("绿色", "green"),
-			yellow: localizedPair("黄色", "yellow"),
-			blue: localizedPair("蓝色", "blue"),
-			magenta: localizedPair("洋红", "magenta"),
-			cyan: localizedPair("青色", "cyan"),
-			white: localizedPair("白色", "white"),
-			gray: localizedPair("灰色", "gray"),
-			grey: localizedPair("灰色", "grey"),
-			brightblack: localizedPair("亮黑", "bright black"),
-			brightred: localizedPair("亮红", "bright red"),
-			brightgreen: localizedPair("亮绿", "bright green"),
-			brightyellow: localizedPair("亮黄", "bright yellow"),
-			brightblue: localizedPair("亮蓝", "bright blue"),
-			brightmagenta: localizedPair("亮洋红", "bright magenta"),
-			brightcyan: localizedPair("亮青", "bright cyan"),
-			brightwhite: localizedPair("亮白", "bright white"),
-			orange: localizedPair("橙色", "orange"),
-			purple: localizedPair("紫色", "purple"),
-			pink: localizedPair("粉色", "pink"),
-			teal: localizedPair("蓝绿", "teal"),
-			lime: localizedPair("黄绿", "lime"),
-			navy: localizedPair("藏青", "navy"),
-			silver: localizedPair("银灰", "silver"),
-		};
-		return localized(names[spec] ?? localizedPair(spec, spec), this.config.language);
 	}
 
 	private openColorPicker(options: {

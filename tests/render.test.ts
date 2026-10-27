@@ -170,6 +170,14 @@ test("glow strength is configurable", () => {
 	assert.ok(line.includes("\x1b[38;2;255;255;255m"), JSON.stringify(line));
 });
 
+test("a widget color applies to a hyperlink-only value", () => {
+	const config = defaultConfig();
+	config.lines = [[{ id: "git-branch", type: "git-branch", color: "#3366ff" }]];
+	const line = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 100)[0];
+	assert.ok(line.includes("\x1b[38;2;51;102;255m\x1b]8;;"), JSON.stringify(line));
+	assert.ok(line.includes("⑂ main"), "the link text survives");
+});
+
 test("glow keeps the value's own ANSI styling", () => {
 	const config = defaultConfig();
 	config.lines = [[{ id: "git-branch", type: "git-branch", glow: true }]];

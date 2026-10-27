@@ -5,12 +5,12 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-A configurable multi-line statusline for the Pi coding agent. It brings the data density and visual style of `ccstatusline-zh` to Pi: 58 freely composable widgets, a three-line default layout, Powerline themes, global style overrides, and an interactive `/me-tui` editor.
+A configurable multi-line statusline for the Pi coding agent. It brings the data density and visual style of `ccstatusline-zh` to Pi: 59 freely composable widgets, a three-line default layout, Powerline themes, global style overrides, and an interactive `/me-tui` editor.
 
 ## Features
 
 - Three-line default statusline; add (after the selected widget), duplicate, remove, reorder, search, and relabel widgets
-- 58 widgets in 9 categories: core, Git, tokens, speed, context, session, environment, custom, layout
+- 59 widgets in 9 categories: core, Git, tokens, speed, context, session, environment, custom, layout
 - Powerline with 7 built-in themes, custom separators, start/end caps, inverted backgrounds, and auto-align
 - Global overrides for foreground/background, bold (with a 0-100 label lift), dim, glow (with 1-100 strength), and padding side (global values take precedence over per-widget settings)
 - Terminal options for color level, icon mode, refresh interval, and Git/custom-command/width cache TTLs

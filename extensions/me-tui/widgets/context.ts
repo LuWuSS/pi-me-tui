@@ -1,5 +1,5 @@
 import type { WidgetDefinition, WidgetItem, WidgetRenderContext } from "../types.ts";
-import { formatPercent, formatTokens, metadataBoolean, metadataNumber } from "../utils.ts";
+import { formatContextWindow, formatPercent, formatTokens, metadataBoolean, metadataNumber } from "../utils.ts";
 import { contextPercent, contextTokens, contextUsage, iconText, itemNumberFormat } from "./shared.ts";
 
 function barText(item: WidgetItem, rc: WidgetRenderContext): string | null {
@@ -139,6 +139,25 @@ export const contextWidgets: WidgetDefinition[] = [
 			},
 		],
 		render: (item, rc) => barText(item, rc),
+	},
+	{
+		type: "context-window",
+		category: "context",
+		name: { zh: "上下文上限", en: "Context window" },
+		description: {
+			zh: "模型支持的上下文长度，约整为 [200K] / [1M]",
+			en: "Model context window, rounded to [200K] / [1M]",
+		},
+		defaultColor: "mdLink",
+		defaultLabel: { zh: "上限: ", en: "window: " },
+		supportsLabel: true,
+		supportsRawValue: true,
+		priority: 5,
+		render: (_item, rc) => {
+			const usage = contextUsage(rc);
+			if (!usage) return null;
+			return formatContextWindow(usage.contextWindow);
+		},
 	},
 	{
 		type: "compaction-count",
