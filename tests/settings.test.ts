@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { defaultConfig } from "../extensions/me-tui/config.ts";
 import { NAMED_COLOR_ORDER } from "../extensions/me-tui/colors.ts";
+import { stripAnsi } from "../extensions/me-tui/utils.ts";
 import { MeTuiSettings } from "../extensions/me-tui/settings/ui.ts";
 import type { MeTuiConfig } from "../extensions/me-tui/types.ts";
 import { fakeTheme } from "./helpers.ts";
@@ -195,10 +196,10 @@ test("color picker lists options and applies a named color", () => {
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
 	assert.match(ui.render(100).join("\n"), /选择颜色/);
-	const steps = 1 + NAMED_COLOR_ORDER.indexOf("red");
+	const steps = 1 + NAMED_COLOR_ORDER.indexOf("brightred");
 	for (let index = 0; index < steps; index += 1) ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
-	assert.equal(lastConfig().lines[0][0].color, "red");
+	assert.equal(lastConfig().lines[0][0].color, "brightred");
 });
 
 test("color picker paints each name in its own color", () => {
@@ -211,7 +212,21 @@ test("color picker paints each name in its own color", () => {
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
 	const raw = ui.render(100).join("\n");
-	assert.ok(raw.includes("\x1b[38;2;205;49;49m红色"), JSON.stringify(raw.slice(0, 400)));
+	assert.ok(raw.includes("\x1b[38;2;241;76;76m亮红"), JSON.stringify(raw.slice(0, 400)));
+});
+
+test("color picker hides colors that are too dark to read", () => {
+	const { ui } = createSettings();
+	ui.handleInput("\r");
+	ui.handleInput("\r");
+	ui.handleInput("\u001b[B");
+	ui.handleInput("\u001b[B");
+	ui.handleInput("\r");
+	const text = ui.render(100).map(stripAnsi).join("\n");
+	assert.equal(NAMED_COLOR_ORDER.includes("black"), false);
+	assert.equal(NAMED_COLOR_ORDER.includes("gray"), false);
+	assert.ok(NAMED_COLOR_ORDER.includes("brightcyan"), "bright colors stay");
+	assert.equal(text.includes("黑色"), false);
 });
 
 test("color picker can clear a color", () => {

@@ -11,7 +11,16 @@ import {
 	visibleWidth,
 } from "@earendil-works/pi-tui";
 import type { SelectItem, SelectListTheme } from "@earendil-works/pi-tui";
-import { isValidColorSpec, NAMED_COLOR_ORDER, NAMED_COLOR_SPECS, paint, POWERLINE_THEME_NAMES, themeColorTokens } from "../colors.ts";
+import {
+	isValidColorSpec,
+	MIN_PICKER_LUMINANCE,
+	NAMED_COLOR_ORDER,
+	NAMED_COLOR_SPECS,
+	paint,
+	POWERLINE_THEME_NAMES,
+	relativeLuminance,
+	themeColorTokens,
+} from "../colors.ts";
 import {
 	addItem,
 	addLine,
@@ -90,6 +99,16 @@ export interface MeTuiSettingsOptions {
 	onRequestRender: () => void;
 	terminalHeight?: () => number;
 }
+
+/** Theme tokens that are chrome rather than text; a statusline color picker has no use for them. */
+const HIDDEN_FOREGROUND_TOKENS = new Set([
+	"border",
+	"borderAccent",
+	"borderMuted",
+	"scrollbarTrack",
+	"scrollbarThumb",
+	"searchMatchText",
+]);
 
 function localizedPair(zh: string, en: string): LocalizedText {
 	return { zh, en };
@@ -1028,7 +1047,7 @@ export class MeTuiSettings {
 				activate: () => this.applyColor(spec),
 			});
 		}
-		for (const token of themeColorTokens(background)) {
+		for (const token of this.readableThemeTokens(background)) {
 			this.colorChoices.set("color:theme:" + token, token);
 			rows.push({
 				id: "color:theme:" + token,
@@ -1220,6 +1239,19 @@ export class MeTuiSettings {
 			});
 		}
 		return rows;
+	}
+
+	/** Theme tokens the picker offers: no chrome tokens, nothing too dark to read. */
+	private readableThemeTokens(background: boolean): string[] {
+		const tokens = themeColorTokens(background);
+		if (background) return tokens;
+		const colors = (this.theme as unknown as { colors?: Record<string, { r: number; g: number; b: number }> })
+			.colors;
+		return tokens.filter((token) => {
+			if (HIDDEN_FOREGROUND_TOKENS.has(token)) return false;
+			const rgb = colors?.[token];
+			return !rgb || relativeLuminance(rgb) >= MIN_PICKER_LUMINANCE;
+		});
 	}
 
 	private swatch(spec: string, background: boolean): string {

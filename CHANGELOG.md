@@ -13,7 +13,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Global bold now only sets the bold attribute instead of repainting the widget color, and glow lifts the color by 22% without implying bold, so the two toggles are independent and stack
 - Bold and glow strengths are configurable: bold lifts the whole item by 15% (0-100, the "foreground lift") so it still reads as emphasis where the terminal has no CJK bold face, and glow uses a 1-100 strength (default 30) for label and value
 - The settings overlay keeps the terminal's own background instead of painting `customMessageBg`, so the preview matches the real statusline
-- The color picker lists the named colors before the theme tokens (8 basic, then 8 bright) and renders every color name in its own color
+- The color picker lists the named colors before the theme tokens and renders every color name in its own color; colors too dark to read on a dark terminal are hidden, including chrome tokens such as borders and scrollbars
 
 ### Fixed
 

@@ -103,15 +103,37 @@ export const NAMED_COLOR_SPECS: string[] = Object.keys(NAMED_RGB);
 export const BASE_COLOR_SPECS: string[] = ["black", "red", "green", "yellow", "blue", "magenta", "cyan", "white"];
 
 /**
- * Named colors in picker order: the eight basics, then the bright set, then the extras. The bright
- * colors carry most of the "bold" impression on a dark terminal, so they sit right after the basics
- * instead of behind the theme tokens.
+ * Colors dimmer than this are unreadable on a dark terminal, so the picker leaves them out: they
+ * only add scrolling and nobody can actually use them in a statusline.
+ */
+export const MIN_PICKER_LUMINANCE = 0.2;
+
+/**
+ * Named colors in picker order: the eight basics, then the bright set, then the extras, minus the
+ * ones too dark to read. The bright colors carry most of the "bold" impression on a dark terminal,
+ * so they sit right after the basics instead of behind the theme tokens.
  */
 export const NAMED_COLOR_ORDER: string[] = [
 	...BASE_COLOR_SPECS,
 	...NAMED_COLOR_SPECS.filter((spec) => spec.startsWith("bright")),
 	...NAMED_COLOR_SPECS.filter((spec) => !spec.startsWith("bright") && !BASE_COLOR_SPECS.includes(spec)),
-];
+].filter(isReadableOnDark);
+
+/** True when the color is bright enough to be read on a dark background. */
+export function isReadableOnDark(spec: string): boolean {
+	const parsed = parseColorSpec(spec);
+	if (!parsed || parsed.kind !== "rgb") return true;
+	return relativeLuminance(parsed.rgb) >= MIN_PICKER_LUMINANCE;
+}
+
+/** WCAG relative luminance of an sRGB color, 0 (black) to 1 (white). */
+export function relativeLuminance(rgb: Rgb): number {
+	const channel = (value: number): number => {
+		const ratio = Math.min(255, Math.max(0, value)) / 255;
+		return ratio <= 0.03928 ? ratio / 12.92 : ((ratio + 0.055) / 1.055) ** 2.4;
+	};
+	return 0.2126 * channel(rgb.r) + 0.7152 * channel(rgb.g) + 0.0722 * channel(rgb.b);
+}
 
 export interface Rgb {
 	r: number;
