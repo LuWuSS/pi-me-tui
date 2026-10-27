@@ -640,6 +640,21 @@ export class MeTuiSettings {
 			const prefix = item.rawValue
 				? ""
 				: (item.labelOverride ?? definition?.defaultLabel?.[this.config.language] ?? "");
+			// Separators ignore their own color and follow the widget before them; a flex spacer
+			// renders nothing, so neither shows a color here.
+			const colorDetail =
+				item.type === "flex"
+					? []
+					: [
+							`${this.t("前景", "fg")} ${
+								item.type === "separator"
+									? this.t("跟随", "inherits")
+									: this.paintedSpec(item.color, this.colorDisplayName(item.color))
+							}`,
+							item.backgroundColor
+								? `${this.t("背景", "bg")} ${this.paintedSpec(item.backgroundColor, this.colorDisplayName(item.backgroundColor))}`
+								: "",
+						];
 			const detail = [
 				`${index + 1}.`,
 				item.type,
@@ -649,6 +664,7 @@ export class MeTuiSettings {
 						? `${this.t("前缀", "label")}: ${prefix.trim()}`
 						: this.t("无前缀", "no label"),
 				item.hideEmpty ? this.t("空值隐藏", "hide empty") : "",
+				...colorDetail,
 			]
 				.filter(Boolean)
 				.join(" · ");
@@ -1299,6 +1315,24 @@ export class MeTuiSettings {
 		this.status = this.t("颜色已更新", "Color updated");
 		this.rebuild();
 		this.selectColorOrigin(returnPage, background);
+	}
+
+	/** Human name for a color spec: the palette label, else its hex. */
+	private colorDisplayName(spec: string | undefined): string {
+		if (!spec) return this.t("默认", "default");
+		const entry = [...COLOR_PALETTE, ...THEME_PALETTE, ...BACKGROUND_PALETTE].find((item) => item.spec === spec);
+		if (entry) return localized(entry.label, this.config.language);
+		return hexOf(spec) ?? spec;
+	}
+
+	/** Renders a label in its own color, so the row shows the color instead of describing it. */
+	private paintedSpec(spec: string | undefined, text: string): string {
+		if (!spec) return text;
+		try {
+			return paint(text, { fg: spec, theme: this.theme, level: this.config.colorLevel });
+		} catch {
+			return text;
+		}
 	}
 
 	/** Puts the highlight back on whatever opened the picker, so the next key keeps editing it. */

@@ -229,6 +229,20 @@ test("color picker hides colors that are too dark to read", () => {
 	assert.equal(text.includes("黑色"), false);
 });
 
+test("the widget list shows each item's colors", () => {
+	const { ui } = createSettings();
+	ui.handleInput("\r");
+	const text = ui.render(140).map(stripAnsi);
+	assert.ok(
+		text.some((line) => line.includes("前景 主题强调")),
+		"the provider row names its theme color",
+	);
+	assert.ok(
+		text.some((line) => line.includes("前景 跟随")),
+		"separators report that they inherit",
+	);
+});
+
 test("f jumps from the highlighted widget into its color picker", () => {
 	const { ui, lastConfig, previewed } = createSettings();
 	ui.handleInput("\r");

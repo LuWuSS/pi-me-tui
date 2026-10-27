@@ -9,6 +9,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ### Added
 
 - Context window widget showing the model's limit as `[200K]` / `[1M]`, rounded to a whole number with K as the smallest unit
+- The widget list names each item's foreground color (and background, when set) next to its type, with separators marked as inheriting
 - `f` and `F` jump from the highlighted widget straight into its foreground or background color picker
 - The color picker offers a plain palette (赤橙黄绿青蓝紫 plus six mixed bright colors) and ten theme colors, all named in Chinese
 
