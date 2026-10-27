@@ -36,9 +36,10 @@ test("defaultConfig has three Chinese-friendly lines", () => {
 	assert.equal(config.lines[0][1].color, "brightyellow");
 	assert.equal(config.lines[0][7].rawValue, false);
 	assert.equal(config.lines[0][7].labelOverride, "本轮：");
-	assert.equal(config.lines[0][7].fixedWidth, 13);
+	assert.equal(config.lines[0][7].fixedWidth, 15);
 	assert.equal(config.lines[1][4].labelOverride, "总计：");
 	assert.equal(config.lines[1][0].type, "context-length");
+	assert.equal(config.lines[1][0].color, "pink");
 	assert.equal(config.lines[2].at(-1)?.type, "cwd");
 	assert.deepEqual(config.overrides, { bold: true, glow: true, boldLift: 0, glowStrength: 5 });
 	assert.equal(config.powerline.autoAlign, true);
