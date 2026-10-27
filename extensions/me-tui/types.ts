@@ -33,6 +33,8 @@ export interface WidgetItem {
 	customSymbol?: string;
 	command?: string;
 	maxWidth?: number;
+	/** Exact occupied width in terminal cells; absent or 0 means auto. */
+	fixedWidth?: number;
 	timeoutMs?: number;
 	numberFormat?: NumberFormat;
 	hideEmpty?: boolean;

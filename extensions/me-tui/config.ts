@@ -235,6 +235,9 @@ function normalizeLines(input: unknown, fallback: WidgetItem[][]): WidgetItem[][
 			if (typeof rawItem.maxWidth === "number" && rawItem.maxWidth > 0) {
 				normalized.maxWidth = clamp(Math.round(rawItem.maxWidth), 1, 500);
 			}
+			if (typeof rawItem.fixedWidth === "number" && rawItem.fixedWidth > 0) {
+				normalized.fixedWidth = clamp(Math.round(rawItem.fixedWidth), 1, 500);
+			}
 			if (typeof rawItem.timeoutMs === "number") {
 				normalized.timeoutMs = clamp(Math.round(rawItem.timeoutMs), 100, 60_000);
 			}

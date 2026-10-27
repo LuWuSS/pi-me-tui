@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Added
 
+- Per-widget fixed display width: a positive value makes the widget occupy exactly that many columns whatever the value length, padding shorter values and truncating longer ones; 0 keeps automatic sizing
 - Context window widget showing the model's limit as `[200K]` / `[1M]`, rounded to a whole number with K as the smallest unit
 - The widget list names each item's foreground color (and background, when set) next to its type, with separators marked as inheriting
 - `f` and `F` jump from the highlighted widget straight into its foreground or background color picker

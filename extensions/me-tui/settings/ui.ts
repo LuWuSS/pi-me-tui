@@ -799,6 +799,18 @@ export class MeTuiSettings {
 		rows.push(this.itemFieldRow(item, "dim", "boolean", this.t("暗色", "Dim")));
 		rows.push(this.itemFieldRow(item, "glow", "boolean", this.t("发光", "Glow")));
 		rows.push(this.itemFieldRow(item, "maxWidth", "number", this.t("最大宽度", "Max width")));
+		rows.push(
+			this.itemFieldRow(
+				item,
+				"fixedWidth",
+				"number",
+				this.t("固定显示宽度", "Fixed width"),
+				undefined,
+				0,
+				500,
+				this.t("0 自动；大于 0 固定列宽", "0 = auto; >0 = fixed columns"),
+			),
+		);
 		rows.push(this.itemFieldRow(item, "hideEmpty", "boolean", this.t("空值隐藏", "Hide when empty")));
 		rows.push(
 			this.itemFieldRow(item, "numberFormat", "enum", this.t("数字格式", "Number format"), [
@@ -1209,6 +1221,7 @@ export class MeTuiSettings {
 		return (
 			field === "labelOverride" ||
 			field === "maxWidth" ||
+			field === "fixedWidth" ||
 			field === "character" ||
 			field === "customText" ||
 			field === "customSymbol"
@@ -1545,12 +1558,14 @@ export class MeTuiSettings {
 	private patchItemField(field: string, value: string | number | boolean | undefined): void {
 		const item = this.currentItem();
 		if (!item) return;
-		if (field === "maxWidth") {
+		if (field === "maxWidth" || field === "fixedWidth") {
 			const numeric = typeof value === "number" ? value : Number(value);
 			if (value === undefined || value === "" || !Number.isFinite(numeric) || numeric <= 0) {
-				this.patchItem({ maxWidth: undefined });
+				this.patchItem(field === "maxWidth" ? { maxWidth: undefined } : { fixedWidth: undefined });
 				return;
 			}
+			this.patchItem(field === "maxWidth" ? { maxWidth: Math.round(numeric) } : { fixedWidth: Math.round(numeric) });
+			return;
 		}
 		if (field.startsWith("metadata.")) {
 			const key = field.slice("metadata.".length);

@@ -153,6 +153,23 @@ test("normalizeConfig drops zero or negative maxWidth instead of clamping to one
 	assert.equal(normalized.lines[0][2].maxWidth, 12);
 });
 
+test("normalizeConfig treats fixedWidth 0 as auto and clamps positives", () => {
+	const normalized = normalizeConfig({
+		lines: [
+			[
+				{ id: "provider", type: "provider", fixedWidth: 0 },
+				{ id: "model", type: "model", fixedWidth: -3 },
+				{ id: "cwd", type: "cwd", fixedWidth: 12.4 },
+				{ id: "tokens-total", type: "tokens-total", fixedWidth: 900 },
+			],
+		],
+	});
+	assert.equal(normalized.lines[0][0].fixedWidth, undefined);
+	assert.equal(normalized.lines[0][1].fixedWidth, undefined);
+	assert.equal(normalized.lines[0][2].fixedWidth, 12);
+	assert.equal(normalized.lines[0][3].fixedWidth, 500);
+});
+
 
 test("normalizeConfig drops disabled overrides so per-item styles still work", () => {
 	const config = normalizeConfig({ overrides: { bold: false, dim: false, glow: false } });

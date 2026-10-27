@@ -49,6 +49,44 @@ test("stress mode keeps long lines within the terminal width", () => {
 	assert.ok(stripAnsi(line).length > 0);
 });
 
+test("fixed width keeps the same columns no matter how long the value is", () => {
+	const config = defaultConfig();
+	config.lines = [
+		[
+			{ id: "a", type: "custom-text", customText: "A", fixedWidth: 12 },
+			{ id: "s", type: "separator", character: "|" },
+			{ id: "b", type: "custom-text", customText: "B" },
+		],
+	];
+	const short = stripAnsi(renderAllLines(config, renderContext({ config }), 120)[0]);
+	config.lines[0][0].customText = "A much longer value";
+	const long = stripAnsi(renderAllLines(config, renderContext({ config }), 120)[0]);
+	assert.equal(short.indexOf("|"), 13, JSON.stringify(short));
+	assert.equal(long.indexOf("|"), 13, JSON.stringify(long));
+	assert.match(long, /^ A much lon…/);
+});
+
+test("fixed width fills the gap with the widget background", () => {
+	const config = defaultConfig();
+	config.lines = [
+		[{ id: "a", type: "custom-text", customText: "A", fixedWidth: 8, backgroundColor: "#102030" }],
+	];
+	const line = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 120)[0];
+	assert.equal(visibleWidth(line), 8);
+	assert.equal(line.split("\x1b[48;2;16;32;48m").length - 1, 2, JSON.stringify(line));
+});
+
+test("fixed width holds inside a powerline block", () => {
+	const config = defaultConfig();
+	config.powerline.enabled = true;
+	config.lines = [[{ id: "a", type: "custom-text", customText: "A", fixedWidth: 10 }]];
+	const short = renderAllLines(config, renderContext({ config }), 100)[0];
+	config.lines[0][0].customText = "A much longer value";
+	const long = renderAllLines(config, renderContext({ config }), 100)[0];
+	assert.equal(visibleWidth(short), 10);
+	assert.equal(visibleWidth(long), 10);
+});
+
 test("separators take the color of the value they follow", () => {
 	const config = defaultConfig();
 	config.lines = [

@@ -10,6 +10,7 @@ A configurable multi-line statusline for the Pi coding agent. It brings the data
 ## Features
 
 - Three-line default statusline; add (after the selected widget), duplicate, remove, reorder, search, and relabel widgets
+- Per-widget max width and fixed display width: 0 keeps automatic sizing, while a positive fixed width always occupies exactly that many columns whatever the value length
 - 59 widgets in 9 categories: core, Git, tokens, speed, context, session, environment, custom, layout
 - Powerline with 7 built-in themes, custom separators, start/end caps, inverted backgrounds, and auto-align
 - Global overrides for foreground/background, bold (with a 0-100 label lift), dim, glow (with 1-100 strength), and padding side (global values take precedence over per-widget settings)
@@ -111,7 +112,7 @@ Main menu:
 - Edit statusline: manage lines and widgets, add/duplicate/delete/move/search, edit labels, widget options; each row names its current foreground color (and background, when set) after the widget type, separators are marked as inheriting; f opens the highlighted widget's color picker and F its background, without going through the options page; after adding, Esc returns to the widget list and category picker to add more; r replaces the highlighted widget with another type from the categories
 - Powerline: enable, theme, separators, background inversion, start/end caps, auto-align
 - Global style: colors, bold and its label lift, dim, glow and its strength, padding, icons, color level, flex mode
-- Colors are picked from a list that puts the named colors before the theme tokens, with each name rendered in its own color; custom hex/rgb/ansi is the last entry. Colors too dark to read on a dark terminal (black, gray, navy, chrome tokens such as borders and scrollbars) are left out. Max width 0 clears the limit
+- Colors are picked from a list that puts the named colors before the theme tokens, with each name rendered in its own color; custom hex/rgb/ansi is the last entry. Colors too dark to read on a dark terminal (black, gray, navy, chrome tokens such as borders and scrollbars) are left out. Max width 0 clears the limit; fixed width 0 is automatic, and a positive value makes the widget occupy exactly that many columns (truncating longer values and padding shorter ones)
 - The overlay fills the full terminal size but keeps the terminal's own background, so the preview sits on the same backdrop as the real statusline
 - Highlighted options preview live (colors, icons, language, theme, labels, width); Enter commits, Esc goes back without saving
 - Settings fill the terminal and preview at statusline width; global bold/dim/glow/padding and Powerline separators preview immediately

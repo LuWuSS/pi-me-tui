@@ -53,6 +53,24 @@ function resolveLabel(item: WidgetItem, rc: WidgetRenderContext): string {
 	return definition.defaultLabel ? definition.defaultLabel[rc.language] : "";
 }
 
+function widthLimit(value: number | undefined): number {
+	return typeof value === "number" && Number.isFinite(value) && value > 0 ? Math.max(1, Math.round(value)) : 0;
+}
+
+/** Truncates to `width` cells and fills the rest, keeping a configured background on the gap. */
+function fitToWidth(
+	text: string,
+	width: number,
+	background: string | undefined,
+	rc: WidgetRenderContext,
+): string {
+	const fitted = truncateToWidth(text, width, "…");
+	const gap = width - visibleWidth(fitted);
+	if (gap <= 0) return fitted;
+	const padding = " ".repeat(gap);
+	return background ? fitted + bgAnsi(background, rc.theme, rc.colorLevel) + padding + "\x1b[0m" : fitted + padding;
+}
+
 function restyleAnsi(text: string, open: string): string {
 	if (!open) return text;
 	if (!text.includes("\x1b[")) return open + text + "\x1b[0m";
@@ -115,8 +133,13 @@ function prepareSegment(item: WidgetItem, rc: WidgetRenderContext, inheritedFg?:
 		if (pad === "both" || pad === "left") text = " " + text;
 		if (pad === "both" || pad === "right") text = text + " ";
 	}
-	if (item.maxWidth && item.maxWidth > 0) {
-		text = truncateToWidth(text, item.maxWidth, "…");
+	const maxWidth = widthLimit(item.maxWidth);
+	if (maxWidth > 0) {
+		text = truncateToWidth(text, maxWidth, "…");
+	}
+	const fixedWidth = widthLimit(item.fixedWidth);
+	if (fixedWidth > 0) {
+		text = fitToWidth(text, fixedWidth, bg, rc);
 	}
 	const paddedPlain =
 		definition.type === "separator"
@@ -124,7 +147,8 @@ function prepareSegment(item: WidgetItem, rc: WidgetRenderContext, inheritedFg?:
 			: (pad === "both" || pad === "left" ? " " : "") +
 				plain +
 				(pad === "both" || pad === "right" ? " " : "");
-	const clippedPlain = item.maxWidth && item.maxWidth > 0 ? truncateToWidth(paddedPlain, item.maxWidth, "…") : paddedPlain;
+	let clippedPlain = maxWidth > 0 ? truncateToWidth(paddedPlain, maxWidth, "…") : paddedPlain;
+	if (fixedWidth > 0) clippedPlain = truncateToWidth(clippedPlain, fixedWidth, "…", true);
 	return {
 		text,
 		plain: clippedPlain,
@@ -294,7 +318,14 @@ function renderPowerlineGroups(
 			const segment = group[index];
 			const bg = powerlineColorAt(palette, colorIndex);
 			const fg = contrastColor(bg);
-			output += powerlinePaint(` ${stripAnsi(segment.plain).trim()} `, fg, bg, rc, true);
+			const inner = stripAnsi(segment.plain).trim();
+			const fixedWidth = widthLimit(segment.item?.fixedWidth);
+			// The block's own two padding spaces count toward the fixed width.
+			const cell =
+				fixedWidth > 0
+					? ` ${truncateToWidth(inner, Math.max(1, fixedWidth - 2), "…", true)} `
+					: ` ${inner} `;
+			output += powerlinePaint(cell, fg, bg, rc, true);
 			const isLastInGroup = index === group.length - 1;
 			const hasNextGroup = groupIndex < groups.length - 1;
 			if (!isLastInGroup || hasNextGroup) {

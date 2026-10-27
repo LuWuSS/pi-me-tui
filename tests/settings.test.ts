@@ -82,6 +82,7 @@ test("widget options expose a quick back-to-line row", () => {
 	const { ui } = createSettings();
 	ui.handleInput("\r");
 	ui.handleInput("\r");
+	for (let index = 0; index < 20; index += 1) ui.handleInput("\u001b[B");
 	assert.match(ui.render(100).join("\n"), /返回上级布局/);
 	assert.match(ui.render(100).join("\n"), /第 1 行/);
 });
@@ -336,6 +337,28 @@ test("glow option toggles the highlighted widget", () => {
 	for (let index = 0; index < 6; index += 1) ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
 	assert.equal(lastConfig().lines[0][0].glow, true);
+});
+
+test("fixed width option previews, commits, and clears at zero", () => {
+	const { ui, lastConfig, previewed } = createSettings();
+	ui.handleInput("\r");
+	ui.handleInput("\r");
+	for (let index = 0; index < 8; index += 1) ui.handleInput("\u001b[B");
+	ui.handleInput("\r");
+	ui.handleInput("1");
+	ui.handleInput("2");
+	ui.render(100);
+	assert.equal(previewed()?.lines[0][0].fixedWidth, 12);
+	assert.equal(lastConfig().lines[0][0].fixedWidth, undefined);
+	ui.handleInput("\r");
+	assert.equal(lastConfig().lines[0][0].fixedWidth, 12);
+
+	ui.handleInput("\r");
+	ui.handleInput("\u007f");
+	ui.handleInput("\u007f");
+	ui.handleInput("0");
+	ui.handleInput("\r");
+	assert.equal(lastConfig().lines[0][0].fixedWidth, undefined);
 });
 
 test("line alignment row previews and applies an alignment", () => {
