@@ -4,7 +4,7 @@
 
 ## 项目简介
 
-pi-me-tui 是 Pi coding agent 的扩展，用于渲染可配置的多行状态栏：9 大类共 58 个组件、Powerline 主题、全局样式覆盖，以及交互式 `/me-tui` 配置界面。
+pi-me-tui 是 Pi coding agent 的扩展，用于渲染可配置的多行状态栏：9 大类共 59 个组件、Powerline 主题、全局样式覆盖，以及交互式 `/me-tui` 配置界面。
 
 - Node.js 22.19 或更高版本（CI 覆盖 22 和 24）
 - 实际运行需要 Pi 1.0 或更高版本
@@ -75,7 +75,7 @@ CI（`.github/workflows/ci.yml`）在 Ubuntu 和 Windows、Node 22 和 24 上运
 - 路径：`getAgentDir()` + `me-tui.json`，默认即 `~/.pi/agent/me-tui.json`。
 - `normalizeConfig` 必须保持向后兼容：缺失字段用默认值补齐，数值做钳制，未知组件类型直接丢弃而不是抛错。解析失败时给出警告并回退到默认值，但不删除文件。
 - 修改 `DEFAULT_CONFIG` 会影响首次生成的配置、「恢复默认」以及归一化回退值；不会重写已有配置中合法的字段。
-- 内置默认值目前是 3 行、51 项的中文布局。`tests/config.test.ts` 和 `tests/render.test.ts` 断言了它的精确结构；有意修改默认值时需同步更新这些测试。
+- 内置默认值目前是 3 行、38 项的中文布局。`tests/config.test.ts` 和 `tests/render.test.ts` 断言了它的精确结构；有意修改默认值时需同步更新这些测试。
 - `MAX_LINES` 为 4。行数、对齐和组件 ID 要保持自洽。
 
 ## 组件（Widget）

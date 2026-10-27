@@ -12,20 +12,26 @@ test("default config renders three lines with core, token, and session data", ()
 	const config = defaultConfig();
 	const lines = renderAllLines(config, renderContext({ config }), 320).map(stripAnsi);
 	assert.equal(lines.length, 3);
-	assert.match(lines[0], /供应商: .*Anthropic/);
-	assert.match(lines[0], /模型: .*Claude Sonnet/);
-	assert.match(lines[0], /思考: .*medium/);
-	assert.match(lines[0], /分支: .*main/);
+	assert.match(lines[0], /◈ Anthropic/);
+	assert.match(lines[0], /◆ Claude Sonnet/);
+	assert.match(lines[0], /\[200K\]/);
+	assert.match(lines[0], /◇ medium/);
+	assert.match(lines[0], /⑂ main/);
 	assert.match(lines[0], /\(\+42,-7\)/);
-	assert.equal(lines[0].includes("变更:"), false);
-	assert.match(lines[0], /1\.3k/);
-	assert.match(lines[0], /本轮  ：/);
-	assert.equal(lines[0].includes("本次输入:"), false);
-	assert.match(lines[0], /17\.6%/);
+	assert.equal(lines[0].includes("供应商:"), false);
+	assert.match(lines[0], /本轮：↑ 1\.3k/);
+	assert.match(lines[0], /↓ 800/);
+	assert.match(lines[0], /Σ 23\.3k/);
+	assert.match(lines[0], /↑\/s 3\.2kt\/s/);
 	assert.match(lines[1], /\[█+░+\] 12\.5%/);
 	assert.match(lines[1], /压缩: .*0/);
-	assert.match(lines[1], /1\.17kt\/s/);
-	assert.match(lines[2], /时钟: .*2m/);
+	assert.match(lines[1], /↓ 8k/);
+	assert.match(lines[1], /↑\/s 3\.26kt\/s/);
+	assert.match(lines[2], /◷ 2m/);
+	assert.match(lines[2], /单⧗ 15s/);
+	assert.match(lines[2], /总⧖ 2m/);
+	assert.match(lines[2], /对话: .*2/);
+	assert.match(lines[2], /调用: .*3/);
 	assert.match(lines[2], /会话: .*demo/);
 	assert.match(lines[2], /技能: .*skill:review/);
 	assert.match(lines[2], /目录: .*pi-me-tui/);
@@ -89,6 +95,7 @@ test("fixed width holds inside a powerline block", () => {
 
 test("separators take the color of the value they follow", () => {
 	const config = defaultConfig();
+	config.overrides = {};
 	config.lines = [
 		[
 			{ id: "a", type: "provider", color: "#3366ff" },
@@ -147,16 +154,16 @@ test("powerline mode adds separators and hides plain flex padding", () => {
 	const lines = renderAllLines(config, renderContext({ config }), 100);
 	assert.equal(lines.length, 3);
 	assert.ok(lines[0].includes("\ue0b0"));
-	assert.match(stripAnsi(lines[0]), /分支: .*main/);
+	assert.match(stripAnsi(lines[0]), /⑂ main/);
 });
 
 test("narrow widths keep high-priority stats and drop the rest", () => {
 	const config = defaultConfig();
 	const wide = stripAnsi(renderAllLines(config, renderContext({ config }), 320)[1]);
 	const narrow = stripAnsi(renderAllLines(config, renderContext({ config }), 100)[1]);
-	assert.match(wide, /12\.3k/);
+	assert.match(wide, /↓ 8k/);
 	assert.match(wide, /t\/s/);
-	assert.match(narrow, /上下文: .*25k/);
+	assert.match(narrow, /▰ 25k/);
 	assert.match(narrow, /压缩: .*0/);
 	assert.ok(visibleWidth(narrow) <= 100);
 });
@@ -170,6 +177,7 @@ test("full-minus-40 keeps the rendered line inside the reduced width", () => {
 
 test("separator and custom text render as literal items", () => {
 	const config = defaultConfig();
+	config.powerline.autoAlign = false;
 	config.lines = [
 		[
 			{ id: "a", type: "custom-text", customText: "left" },
@@ -204,6 +212,7 @@ test("bold restyles the label and an ANSI-colored value", () => {
 
 test("glow lifts the label and the value by the configured strength", () => {
 	const config = defaultConfig();
+	config.overrides = {};
 	config.lines = [[{ id: "provider", type: "provider", color: "#3366ff", glow: true }]];
 	const line = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 100)[0];
 	const glow = "\x1b[38;2;112;148;255m";
@@ -223,6 +232,7 @@ test("glow strength is configurable", () => {
 
 test("a widget color applies to a hyperlink-only value", () => {
 	const config = defaultConfig();
+	config.overrides = {};
 	config.lines = [[{ id: "git-branch", type: "git-branch", color: "#3366ff" }]];
 	const line = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 100)[0];
 	assert.ok(line.includes("\x1b[38;2;51;102;255m\x1b]8;;"), JSON.stringify(line));
@@ -238,6 +248,7 @@ test("glow keeps the value's own ANSI styling", () => {
 
 test("bold stays visible when glow is already on", () => {
 	const config = defaultConfig();
+	config.overrides = {};
 	config.lines = [[{ id: "provider", type: "provider", color: "#3366ff" }]];
 	config.overrides.glow = true;
 	const glowOnly = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 100)[0];
@@ -273,6 +284,7 @@ test("ansi16 rgb colors map to real foreground and background codes", () => {
 
 test("bold adds the attribute and lifts the whole item", () => {
 	const config = defaultConfig();
+	config.overrides = {};
 	config.lines = [[{ id: "provider", type: "provider", color: "#3366ff" }]];
 	config.overrides.bold = true;
 	const line = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 100)[0];
@@ -283,6 +295,7 @@ test("bold adds the attribute and lifts the whole item", () => {
 
 test("bold lift 0 keeps every color untouched", () => {
 	const config = defaultConfig();
+	config.overrides = {};
 	config.lines = [[{ id: "provider", type: "provider", color: "#3366ff" }]];
 	config.overrides.bold = true;
 	config.overrides.boldLift = 0;
@@ -311,6 +324,7 @@ test("glow brightens theme-token colors too", () => {
 		getFgAnsi: (color: string) => (color === "accent" ? "\x1b[38;2;122;162;247m" : ""),
 	} as ReturnType<typeof fakeTheme>;
 	const config = defaultConfig();
+	config.overrides = {};
 	config.lines = [[{ id: "provider", type: "provider", glow: true }]];
 	const line = renderAllLines(config, renderContext({ config, theme, colorLevel: "truecolor" }), 100)[0];
 	const glow = "\x1b[38;2;162;190;249m";
@@ -330,7 +344,9 @@ test("brightenAnsi lifts theme colors that carry extra attributes", () => {
 
 test("global overrides win over per-item false values", () => {
 	const config = defaultConfig();
+	config.overrides = {};
 	const item = config.lines[0][0];
+	item.rawValue = false;
 	item.bold = false;
 	item.dim = false;
 	item.glow = false;

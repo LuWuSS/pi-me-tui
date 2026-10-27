@@ -22,6 +22,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 - Global bold now only sets the bold attribute instead of repainting the widget color, and glow lifts the color by 22% without implying bold, so the two toggles are independent and stack
 - Bold and glow strengths are configurable: bold lifts the whole item by 15% (0-100, the "foreground lift") so it still reads as emphasis where the terminal has no CJK bold face, and glow uses a 1-100 strength (default 30) for label and value
 - The settings overlay keeps the terminal's own background instead of painting `customMessageBg`, so the preview matches the real statusline
+- The built-in default layout is now a three-line, 38-item Chinese statusline without separators: raw provider/model/thinking/branch values, a context-window badge, fixed-width token and speed groups, global bold and a 5% glow, and Powerline auto-align enabled; existing saved configs are left untouched
 
 ### Fixed
 

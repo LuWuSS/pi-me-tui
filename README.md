@@ -95,15 +95,15 @@ Restart Pi after removal. The extension's settings remain in `~/.pi/agent/me-tui
 
 ## Default layout
 
-The default language is Chinese, with three lines:
+The default language is Chinese, with three lines and no separators; spacing and color carry the grouping:
 
 ```text
-供应商: ... │ 模型: ... │ 思考: ... │ 分支: ... (+42,-7)   本轮  ： ... │ 缓存: ... 命中: ... | ↑/s ... ↓/s ... Σ/s ...
-上下文: [████░░░░] 12.5% │ 压缩: 2   总计  ： ... │ 缓存: ... 命中: ... | ↑/s ... ↓/s ... Σ/s ...
-时钟: ... │ 本轮: ... │ 总时长: ... │ 对话: ... │ 调用: ...    会话: ...    内存: ... │ 技能: ... │ 目录: ...
+◈ Anthropic  ◆ Claude Sonnet  [200K]  ◇ medium  ⑂ main  (+42,-7)          本轮：↑ 1.3k  ↓ 800  Σ 23.3k  ▤ 300  ◉ 17…  ↑/s 3.2kt/s  ↓/s 400t/s  Σ/s 960t/s
+▰ 25k  [█░░░░░░░] 12.5%  压缩: ⇲ 0          总计：↑ 12.…  ↓ 8k  Σ 23.3k  ▤ 3k  ◉ 18…  ↑/s 3.26kt/s  ↓/s 533.3t/s  Σ/s 1.17kt/s
+◷ 2m  单⧗ 15s  总⧖ 2m  对话: ⟳ 2  调用: ⇄ 3          会话: ▤ demo          技能: ✦ skill:review  内存: ▦ 8.2G/31.3G 26%  目录: ▸ C:/work/pi-me-tui
 ```
 
-The spaces between the left and right groups are flex widgets, so the right side stays flush at any width. Every widget can be replaced, moved, or removed in `/me-tui`, and Restore defaults brings back this layout.
+The spaces between the left and right groups are flex widgets, so the right side stays flush at any width. Token and speed widgets use fixed columns, so the right-hand group does not shift as values grow; longer values are truncated (the hit rate, for example, shows `◉ 17…` at six columns). Bold and a 5% glow are on by default; Powerline stays off. Every widget can be replaced, moved, or removed in `/me-tui`, and Restore defaults brings back this layout.
 
 ## Editor
 

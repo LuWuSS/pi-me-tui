@@ -143,7 +143,6 @@ test("d deletes the highlighted widget, not the last activated one", () => {
 	const { ui, lastConfig } = createSettings();
 	ui.handleInput("\r");
 	ui.handleInput("\u001b[B");
-	ui.handleInput("\u001b[B");
 	ui.handleInput("d");
 	const types = lastConfig().lines[0].map((item) => item.type);
 	assert.equal(types.includes("model"), false);
@@ -153,7 +152,6 @@ test("d deletes the highlighted widget, not the last activated one", () => {
 test("e edits the prefix of the highlighted widget", () => {
 	const { ui, lastConfig } = createSettings();
 	ui.handleInput("\r");
-	ui.handleInput("\u001b[B");
 	ui.handleInput("\u001b[B");
 	ui.handleInput("e");
 	ui.handleInput("custom:");
@@ -165,7 +163,6 @@ test("e edits the prefix of the highlighted widget", () => {
 test("options page edits the widget that was opened", () => {
 	const { ui, lastConfig } = createSettings();
 	ui.handleInput("\r");
-	ui.handleInput("\u001b[B");
 	ui.handleInput("\u001b[B");
 	ui.handleInput("w");
 	assert.match(ui.render(100).join("\n"), /组件选项/);
@@ -231,7 +228,14 @@ test("color picker hides colors that are too dark to read", () => {
 });
 
 test("the widget list shows each item's colors", () => {
-	const { ui } = createSettings();
+	const config = defaultConfig();
+	config.lines = [
+		[
+			{ id: "p", type: "provider", color: "accent" },
+			{ id: "s", type: "separator", character: "│" },
+		],
+	];
+	const { ui } = createSettings(config);
 	ui.handleInput("\r");
 	const text = ui.render(140).map(stripAnsi);
 	assert.ok(
@@ -245,7 +249,9 @@ test("the widget list shows each item's colors", () => {
 });
 
 test("f jumps from the highlighted widget into its color picker", () => {
-	const { ui, lastConfig, previewed } = createSettings();
+	const config = defaultConfig();
+	config.lines[0][0].color = "accent";
+	const { ui, lastConfig, previewed } = createSettings(config);
 	ui.handleInput("\r");
 	ui.handleInput("f");
 	assert.match(ui.render(100).join("\n"), /选择颜色 · 前景色/);
@@ -259,7 +265,6 @@ test("f jumps from the highlighted widget into its color picker", () => {
 test("leaving the color picker keeps the same widget highlighted", () => {
 	const { ui } = createSettings();
 	ui.handleInput("\r");
-	ui.handleInput("\u001b[B");
 	ui.handleInput("\u001b[B");
 	ui.handleInput("f");
 	ui.handleInput("\r");
@@ -364,7 +369,10 @@ test("fixed width option previews, commits, and clears at zero", () => {
 test("line alignment row previews and applies an alignment", () => {
 	const { ui, lastConfig, previewed } = createSettings();
 	ui.handleInput("\r");
-	for (let index = 0; index < 20; index += 1) ui.handleInput("\u001b[B");
+	ui.handleInput("/");
+	ui.handleInput("行对齐");
+	ui.handleInput("\r");
+	ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
 	for (let index = 0; index < 3; index += 1) ui.handleInput("\u001b[B");
 	ui.render(100);
@@ -390,7 +398,9 @@ test("global padding previews and applies the highlighted side", () => {
 });
 
 test("global bold toggles and previews immediately", () => {
-	const { ui, previewed, lastConfig } = createSettings();
+	const config = defaultConfig();
+	config.overrides = {};
+	const { ui, previewed, lastConfig } = createSettings(config);
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
@@ -447,7 +457,9 @@ test("global dim toggles and previews immediately", () => {
 });
 
 test("global glow toggles and previews immediately", () => {
-	const { ui, previewed, lastConfig } = createSettings();
+	const config = defaultConfig();
+	config.overrides = {};
+	const { ui, previewed, lastConfig } = createSettings(config);
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\u001b[B");
 	ui.handleInput("\r");
@@ -476,14 +488,13 @@ test("adding a widget inserts it after the highlighted widget", () => {
 	const { ui, lastConfig } = createSettings();
 	ui.handleInput("\r");
 	ui.handleInput("\u001b[B");
-	ui.handleInput("\u001b[B");
 	ui.handleInput("a");
 	ui.handleInput("\r");
 	ui.handleInput("\r");
 	const line = lastConfig().lines[0];
-	assert.equal(line[2].type, "model");
-	assert.equal(line[3].type, "provider");
-	assert.notEqual(line[3].id, line[0].id);
+	assert.equal(line[1].type, "model");
+	assert.equal(line[2].type, "provider");
+	assert.notEqual(line[2].id, line[0].id);
 });
 test("settings render fills the terminal height with a padded background", () => {
 	const ui = new MeTuiSettings({
