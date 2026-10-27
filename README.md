@@ -108,7 +108,7 @@ The spaces between the left and right groups are flex widgets, so the right side
 
 Main menu:
 
-- Edit statusline: manage lines and widgets, add/duplicate/delete/move/search, edit labels, widget options; after adding, Esc returns to the widget list and category picker to add more; r replaces the highlighted widget with another type from the categories
+- Edit statusline: manage lines and widgets, add/duplicate/delete/move/search, edit labels, widget options; f opens the highlighted widget's color picker and F its background, without going through the options page; after adding, Esc returns to the widget list and category picker to add more; r replaces the highlighted widget with another type from the categories
 - Powerline: enable, theme, separators, background inversion, start/end caps, auto-align
 - Global style: colors, bold and its label lift, dim, glow and its strength, padding, icons, color level, flex mode
 - Colors are picked from a list that puts the named colors before the theme tokens, with each name rendered in its own color; custom hex/rgb/ansi is the last entry. Colors too dark to read on a dark terminal (black, gray, navy, chrome tokens such as borders and scrollbars) are left out. Max width 0 clears the limit

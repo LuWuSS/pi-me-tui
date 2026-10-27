@@ -266,6 +266,14 @@ export class MeTuiSettings {
 				this.rebuild();
 				return;
 			}
+			if (data === "f" && this.currentItem()) {
+				this.openItemColor("color");
+				return;
+			}
+			if (data === "F" && this.currentItem()) {
+				this.openItemColor("backgroundColor");
+				return;
+			}
 			if (data === "h" && this.currentItem()) {
 				const item = this.currentItem();
 				if (item) {
@@ -435,8 +443,8 @@ export class MeTuiSettings {
 		if (this.page === "main") return this.t("↑↓ 导航 · Enter 选择 · q 退出", "↑↓ navigate · Enter select · q quit");
 		if (this.page === "items") {
 			return this.t(
-				"Enter 选项 · r 改类型 · a 添加 · c 复制 · d 删除 · e 前缀 · w 选项 · h 隐藏空值 · m 移动 · Tab 换行 · n 新增行 · x 删除行 · / 搜索 · q 返回",
-				"Enter options · r change type · a add · c duplicate · d delete · e label · w options · h hide empty · m move · Tab line · n new line · x del line · / search · q back",
+				"Enter 选项 · f 改色 · F 底色 · r 改类型 · a 添加 · c 复制 · d 删除 · e 前缀 · w 选项 · h 隐藏空值 · m 移动 · Tab 换行 · n 新增行 · x 删除行 · / 搜索 · q 返回",
+				"Enter options · f color · F background · r change type · a add · c duplicate · d delete · e label · w options · h hide empty · m move · Tab line · n new line · x del line · / search · q back",
 			);
 		}
 		if (this.page === "addWidget") return this.t("↑↓ 导航 · Enter 添加 · / 搜索 · Esc 返回", "↑↓ navigate · Enter add · / search · Esc back");
@@ -1469,6 +1477,20 @@ export class MeTuiSettings {
 		}
 		const value = (item as unknown as Record<string, unknown>)[field];
 		return value === undefined || value === null ? "" : String(value);
+	}
+
+	/** Jump straight from the highlighted widget into its color picker. */
+	private openItemColor(field: "color" | "backgroundColor"): void {
+		const item = this.currentItem();
+		if (!item) return;
+		this.itemId = item.id;
+		this.openColorPicker({
+			label: field === "color" ? this.t("前景色", "Foreground") : this.t("背景色", "Background"),
+			current: (field === "color" ? item.color : item.backgroundColor) ?? "",
+			background: field === "backgroundColor",
+			preview: (config, value) => this.previewItemPatch(config, item, field, value),
+			apply: (value) => this.patchItem({ [field]: value } as Partial<WidgetItem>),
+		});
 	}
 
 	private patchItem(patch: Partial<WidgetItem>): void {

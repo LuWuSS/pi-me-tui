@@ -9,10 +9,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 ### Added
 
 - Context window widget showing the model's limit as `[200K]` / `[1M]`, rounded to a whole number with K as the smallest unit
+- `f` and `F` jump from the highlighted widget straight into its foreground or background color picker
 - The color picker offers a plain palette (赤橙黄绿青蓝紫 plus six mixed bright colors) and ten theme colors, all named in Chinese
 
 ### Changed
 
+- Separators inherit the color of the widget they follow instead of keeping their own
 - Thinking effort values use the English level names (`off`, `minimal`, `low`, `medium`, `high`, `xhigh`, `max`) in both languages
 - The default layout renders Git change counts without a label, labels the two current-input token widgets with `本轮` and the session-input token widget with `总计`, and centers the session name between flex spacers
 - Global bold now only sets the bold attribute instead of repainting the widget color, and glow lifts the color by 22% without implying bold, so the two toggles are independent and stack

@@ -49,6 +49,19 @@ test("stress mode keeps long lines within the terminal width", () => {
 	assert.ok(stripAnsi(line).length > 0);
 });
 
+test("separators take the color of the value they follow", () => {
+	const config = defaultConfig();
+	config.lines = [
+		[
+			{ id: "a", type: "provider", color: "#3366ff" },
+			{ id: "s", type: "separator", character: "|", color: "dim" },
+			{ id: "b", type: "model", color: "#00ff00" },
+		],
+	];
+	const line = renderAllLines(config, renderContext({ config, colorLevel: "truecolor" }), 100)[0];
+	assert.ok(line.includes("\x1b[38;2;51;102;255m|\x1b[0m"), JSON.stringify(line));
+});
+
 test("separators next to hidden widgets are dropped and never doubled", () => {
 	const config = defaultConfig();
 	config.lines = [

@@ -229,6 +229,18 @@ test("color picker hides colors that are too dark to read", () => {
 	assert.equal(text.includes("黑色"), false);
 });
 
+test("f jumps from the highlighted widget into its color picker", () => {
+	const { ui, lastConfig, previewed } = createSettings();
+	ui.handleInput("\r");
+	ui.handleInput("f");
+	assert.match(ui.render(100).join("\n"), /选择颜色 · 前景色/);
+	ui.handleInput("\u001b[B");
+	ui.render(100);
+	assert.equal(previewed()?.lines[0][0].color, "text");
+	ui.handleInput("\r");
+	assert.equal(lastConfig().lines[0][0].color, "text");
+});
+
 test("color picker can clear a color", () => {
 	const config = defaultConfig();
 	config.lines[0][0].color = "brightgreen";

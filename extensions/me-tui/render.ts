@@ -26,6 +26,8 @@ interface Segment {
 	priority: number;
 	item?: WidgetItem;
 	flex?: boolean;
+	/** Resolved foreground, so a following separator can inherit it. */
+	fg?: string;
 }
 
 /**
@@ -63,7 +65,7 @@ function restyleAnsi(text: string, open: string): string {
 	return output.endsWith("\x1b[0m") ? output : output + "\x1b[0m";
 }
 
-function prepareSegment(item: WidgetItem, rc: WidgetRenderContext): Segment | null {
+function prepareSegment(item: WidgetItem, rc: WidgetRenderContext, inheritedFg?: string): Segment | null {
 	const definition = getWidget(item.type);
 	if (!definition) return null;
 	let value: string | null = null;
@@ -77,7 +79,10 @@ function prepareSegment(item: WidgetItem, rc: WidgetRenderContext): Segment | nu
 	if (!value) return null;
 	const label = resolveLabel(item, rc);
 	const plain = label + stripAnsi(value);
-	const fg = rc.config.overrides.fg ?? item.color ?? definition.defaultColor;
+	// Separators follow whatever they sit behind, so the divider always matches the value it
+	// closes instead of keeping a color of its own.
+	const ownColor = definition.type === "separator" ? (inheritedFg ?? item.color) : item.color;
+	const fg = rc.config.overrides.fg ?? ownColor ?? definition.defaultColor;
 	const bg = rc.config.overrides.bg ?? item.backgroundColor;
 	const bold = rc.config.overrides.bold ?? item.bold ?? false;
 	const dim = rc.config.overrides.dim ?? item.dim ?? false;
@@ -126,6 +131,7 @@ function prepareSegment(item: WidgetItem, rc: WidgetRenderContext): Segment | nu
 		width: visibleWidth(text),
 		priority: definition.priority,
 		item,
+		fg,
 	};
 }
 
@@ -349,13 +355,15 @@ function effectiveWidth(config: MeTuiConfig, rc: WidgetRenderContext, width: num
 }
 
 function buildSegments(line: WidgetItem[], rc: WidgetRenderContext): Segment[] {
-	const entries = line.map((item) => ({
-		item,
-		segment:
-			item.type === "flex"
-				? ({ text: "", plain: "", width: 0, priority: 0, flex: true } as Segment)
-				: prepareSegment(item, rc),
-	}));
+	let lastFg: string | undefined;
+	const entries = line.map((item) => {
+		if (item.type === "flex") {
+			return { item, segment: { text: "", plain: "", width: 0, priority: 0, flex: true } as Segment };
+		}
+		const segment = prepareSegment(item, rc, lastFg);
+		if (item.type !== "separator" && segment) lastFg = segment.fg;
+		return { item, segment };
+	});
 	const segments: Segment[] = [];
 	for (let index = 0; index < entries.length; index += 1) {
 		const entry = entries[index];
