@@ -241,6 +241,22 @@ test("f jumps from the highlighted widget into its color picker", () => {
 	assert.equal(lastConfig().lines[0][0].color, "text");
 });
 
+test("leaving the color picker keeps the same widget highlighted", () => {
+	const { ui } = createSettings();
+	ui.handleInput("\r");
+	ui.handleInput("\u001b[B");
+	ui.handleInput("\u001b[B");
+	ui.handleInput("f");
+	ui.handleInput("\r");
+	let selected = ui.render(120).map(stripAnsi).find((line) => line.includes("→")) ?? "";
+	assert.ok(selected.includes("model"), `after Enter: ${JSON.stringify(selected)}`);
+
+	ui.handleInput("f");
+	ui.handleInput("\u001b");
+	selected = ui.render(120).map(stripAnsi).find((line) => line.includes("→")) ?? "";
+	assert.ok(selected.includes("model"), `after Esc: ${JSON.stringify(selected)}`);
+});
+
 test("color picker can clear a color", () => {
 	const config = defaultConfig();
 	config.lines[0][0].color = "brightgreen";

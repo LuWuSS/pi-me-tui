@@ -23,6 +23,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ### Fixed
 
+- Leaving the color picker with Enter or Esc puts the highlight back on the widget (or the option row) that opened it
 - A widget color now applies to values that only carry a hyperlink, such as the Git branch, instead of being silently ignored
 - Configuration parse failures now show a warning instead of silently falling back to defaults
 - Documented `--approve` (`-a`) for removing a project-level package when the project is not trusted

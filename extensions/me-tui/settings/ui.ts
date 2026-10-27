@@ -1291,11 +1291,20 @@ export class MeTuiSettings {
 	private applyColor(value: string | undefined): void {
 		const target = this.colorTarget;
 		if (!target) return;
-		this.page = this.colorReturnPage;
+		const returnPage = this.colorReturnPage;
+		const background = target.background;
+		this.page = returnPage;
 		this.colorTarget = undefined;
 		target.apply(value);
 		this.status = this.t("颜色已更新", "Color updated");
 		this.rebuild();
+		this.selectColorOrigin(returnPage, background);
+	}
+
+	/** Puts the highlight back on whatever opened the picker, so the next key keeps editing it. */
+	private selectColorOrigin(page: Page, background: boolean): void {
+		if (page === "items") this.selectRowById(this.itemId);
+		else if (page === "options") this.selectRowById(`field:${background ? "backgroundColor" : "color"}`);
 	}
 
 	private itemFieldRow(
@@ -1674,6 +1683,8 @@ export class MeTuiSettings {
 			this.pendingImport = undefined;
 			this.importNotice = [];
 		}
+		const colorOrigin = this.page === "colorPicker" ? this.colorTarget?.background : undefined;
+		if (this.page === "colorPicker") this.colorTarget = undefined;
 		const target = this.parentPage(this.page);
 		if (target !== "items" && target !== "addWidget") this.search = "";
 		if (target === "items") {
@@ -1684,6 +1695,7 @@ export class MeTuiSettings {
 		this.rebuild();
 		if (target === "items") this.selectRowById(this.itemId);
 		else if (target === "addWidget" && this.addWidgetType) this.selectRowById(this.addWidgetType);
+		else if (colorOrigin !== undefined) this.selectColorOrigin(target, colorOrigin);
 	}
 
 	private parentPage(page: Page): Page {
